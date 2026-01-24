@@ -1,6 +1,6 @@
 import { api } from './index';
 import type { Pet, PaginatedResponse, PetFilters } from '../../types';
-import type { PetResponseDTO, PetDTO } from '../../types/dtos';
+import type { PetResponseDTO, PetDTO, PetDetailsDTO } from '../../types/dtos';
 
 export const petsService = {
     getPets: async (filters: PetFilters = {}): Promise<PaginatedResponse<Pet>> => {
@@ -22,9 +22,9 @@ export const petsService = {
         };
     },
 
-    getPetById: async (id: number): Promise<Pet> => {
-        const response = await api.get<PetDTO>(`/pets/${id}`);
-        return mapPetDtoToDomain(response.data);
+    getPetById: async (id: number): Promise<PetDetailsDTO> => {
+        const response = await api.get<PetDetailsDTO>(`/pets/${id}`);
+        return response.data;
     }
 };
 

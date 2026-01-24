@@ -4,7 +4,7 @@ import { petsService } from '../../services/api/pets_service';
 import type { Pet } from '../../types';
 import { Card } from '../../components/UI/Card';
 import { Pagination } from '../../components/UI/Pagination';
-
+import { Link } from 'react-router-dom';
 export default function PetList() {
     const [pets, setPets] = useState<Pet[]>([]);
     const [loading, setLoading] = useState(true);
@@ -12,6 +12,8 @@ export default function PetList() {
     const [searchTerm, setSearchTerm] = useState('');
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+
+
 
     useEffect(() => {
         fetchPets();
@@ -21,7 +23,7 @@ export default function PetList() {
         setLoading(true);
         setError(null);
         try {
-            // Debounce could be added here or in the input handler for optimization
+
             const response = await petsService.getPets({
                 name: searchTerm,
                 page,
@@ -39,7 +41,7 @@ export default function PetList() {
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
-        setPage(1); // Reset to first page on search
+        setPage(1);
     };
 
     return (
@@ -84,19 +86,21 @@ export default function PetList() {
                     {pets.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             {pets.map((pet) => (
-                                <Card
-                                    key={pet.id}
-                                    title={pet.name}
-                                    subtitle={`${pet.breed} • ${pet.age} anos`}
-                                    image={pet.photo_url}
-                                    className="h-full"
-                                >
-                                    <div className="mt-2 flex items-center justify-between text-sm">
-                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                            Disponível
-                                        </span>
-                                    </div>
-                                </Card>
+                                <Link to={`/pets/${pet.id}`}>
+                                    <Card
+                                        key={pet.id}
+                                        title={pet.name}
+                                        subtitle={`${pet.breed} • ${pet.age} anos`}
+                                        image={pet.photo_url}
+                                        className="h-full"
+                                    >
+                                        <div className="mt-2 flex items-center justify-between text-sm">
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                                Disponível
+                                            </span>
+                                        </div>
+                                    </Card>
+                                </Link>
                             ))}
                         </div>
                     ) : (

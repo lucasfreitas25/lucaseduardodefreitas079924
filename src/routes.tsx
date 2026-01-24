@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { MainLayout } from './components/Layout/MainLayout';
 import PetList from './pages/Pets/PetList';
+import PetDetails from './pages/Pets/PetDetails';
 import React, { Suspense } from 'react';
 
 // Lazy loading Tutors module
@@ -28,6 +29,10 @@ export const router = createBrowserRouter([
                     {
                         path: 'pets',
                         element: <PetList />,
+                    },
+                    {
+                        path: 'pets/:id',
+                        element: <PetDetails />,
                     },
                     {
                         path: 'tutors',
