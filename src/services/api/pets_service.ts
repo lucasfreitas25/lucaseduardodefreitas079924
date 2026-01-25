@@ -25,6 +25,30 @@ export const petsService = {
     getPetById: async (id: number): Promise<PetDetailsDTO> => {
         const response = await api.get<PetDetailsDTO>(`/pets/${id}`);
         return response.data;
+    },
+
+
+    createPet: async (pet: PetDTO): Promise<PetDTO> => {
+        const response = await api.post<PetDTO>('/pets', pet);
+        return response.data;
+    },
+
+    updatePet: async (id: number, pet: PetDTO): Promise<void> => {
+        await api.put(`/pets/${id}`, pet);
+    },
+
+    uploadPetPhoto: async (id: number, file: File): Promise<void> => {
+        const formData = new FormData();
+        formData.append('foto', file);
+        await api.post(`/pets/${id}/fotos`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+    },
+
+    deletePetPhoto: async (id: number, photoId: number): Promise<void> => {
+        await api.delete(`/pets/${id}/fotos/${photoId}`);
     }
 };
 

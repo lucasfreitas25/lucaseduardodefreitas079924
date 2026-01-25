@@ -5,6 +5,7 @@ import type { Pet } from '../../types';
 import { Card } from '../../components/UI/Card';
 import { Pagination } from '../../components/UI/Pagination';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 export default function PetList() {
     const [pets, setPets] = useState<Pet[]>([]);
     const [loading, setLoading] = useState(true);
@@ -12,7 +13,7 @@ export default function PetList() {
     const [searchTerm, setSearchTerm] = useState('');
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-
+    const navigate = useNavigate();
 
 
     useEffect(() => {
@@ -49,18 +50,38 @@ export default function PetList() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Pets Disponíveis</h1>
 
-                <div className="relative w-full sm:w-72">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Search className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                        type="text"
-                        className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg leading-5 bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
-                        placeholder="Buscar por nome..."
-                        value={searchTerm}
-                        onChange={handleSearch}
-                    />
+                <button
+                    onClick={() => navigate('/pets/new')}
+                    className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all shadow-sm hover:shadow-md"
+                >
+                    <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                        />
+                    </svg>
+                    <span>Novo Pet</span>
+                </button>
+            </div>
+
+            <div className="relative w-full">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Search className="h-5 w-5 text-gray-400" />
                 </div>
+                <input
+                    type="text"
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg leading-5 bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
+                    placeholder="Buscar por nome..."
+                    value={searchTerm}
+                    onChange={handleSearch}
+                />
             </div>
 
             {error && (
@@ -86,21 +107,28 @@ export default function PetList() {
                     {pets.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             {pets.map((pet) => (
-                                <Link to={`/pets/${pet.id}`}>
-                                    <Card
-                                        key={pet.id}
-                                        title={pet.name}
-                                        subtitle={`${pet.breed} • ${pet.age} anos`}
-                                        image={pet.photo_url}
-                                        className="h-full"
+                                <div key={pet.id} className="relative group">
+                                    <Link to={`/pets/${pet.id}`}>
+                                        <Card
+                                            title={pet.name}
+                                            subtitle={`${pet.breed} • ${pet.age} anos`}
+                                            image={pet.photo_url}
+                                            className="h-full hover:shadow-lg transition-all duration-300"
+                                        >
+                                        </Card>
+                                    </Link>
+                                    <button
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            navigate(`/pets/${pet.id}/edit`);
+                                        }}
+                                        className="absolute top-2 right-2 p-2 bg-white/90 dark:bg-black/50 rounded-full shadow-sm hover:bg-blue-50 dark:hover:bg-blue-900/50 text-gray-700 dark:text-gray-200 transition-colors opacity-0 group-hover:opacity-100"
+                                        title="Editar Pet"
                                     >
-                                        <div className="mt-2 flex items-center justify-between text-sm">
-                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                                Disponível
-                                            </span>
-                                        </div>
-                                    </Card>
-                                </Link>
+                                        <img src={"/src/assets/edit.svg"} alt={"Editar"} className='w-4 h-4 invert brightness-0' />
+                                    </button>
+                                </div>
                             ))}
                         </div>
                     ) : (

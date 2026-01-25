@@ -2,10 +2,11 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { MainLayout } from './components/Layout/MainLayout';
 import PetList from './pages/Pets/PetList';
 import PetDetails from './pages/Pets/PetDetails';
-import React, { Suspense } from 'react';
+import PetEdit from './pages/Pets/PetEdit';
+import PetAdd from './pages/Pets/PetAdd';
 
-// Lazy loading Tutors module
-const TutorList = React.lazy(() => import('./pages/Tutors/TutorList'));
+
+import TutorList from './pages/Tutors/TutorList';
 
 import { PrivateRoute } from './components/Auth/PrivateRoute';
 import Login from './pages/Auth/Login';
@@ -31,17 +32,33 @@ export const router = createBrowserRouter([
                         element: <PetList />,
                     },
                     {
+                        path: 'pets/new',
+                        element: <PetAdd />,
+                    },
+                    {
                         path: 'pets/:id',
                         element: <PetDetails />,
                     },
                     {
-                        path: 'tutors',
-                        element: (
-                            <Suspense fallback={<div className="p-4 text-center">Carregando módulo...</div>}>
-                                <TutorList />
-                            </Suspense>
-                        ),
+                        path: 'pets/:id/edit',
+                        element: <PetEdit />,
                     },
+                    {
+                        path: 'tutors',
+                        element: <TutorList />
+                    },
+                    // {
+                    //     path: 'tutors/new',
+                    //     element: <TutorAdd />,
+                    // },
+                    // {
+                    //     path: 'tutors/:id',
+                    //     element: <TutorDetails />,
+                    // },
+                    // {
+                    //     path: 'tutors/:id/edit',
+                    //     element: <TutorEdit />,
+                    // },
                 ],
             },
         ],

@@ -11,7 +11,7 @@ export interface PetDTO {
     };
 }
 
-export interface Tutor {
+export interface TutorDTO {
     id: number;
     nome: string;
     email: string;
@@ -36,7 +36,22 @@ export interface PetDetailsDTO {
         contentType: string;
         url: string;
     };
-    tutores: Tutor[];
+    tutores: TutorDTO[];
+}
+export interface TutorDetailsDTO {
+    id: number;
+    nome: string;
+    email: string;
+    telefone: string;
+    endereco: string;
+    cpf: string;
+    foto?: {
+        id: number;
+        nome: string;
+        contentType: string;
+        url: string;
+    };
+    pets: PetDTO[];
 }
 
 export interface PetResponseDTO {
@@ -45,4 +60,11 @@ export interface PetResponseDTO {
     total: number;
     pageCount: number;
     content: PetDTO[];
+}
+export interface TutorResponseDTO {
+    page: number;
+    size: number;
+    total: number;
+    pageCount: number;
+    content: TutorDTO[];
 }
