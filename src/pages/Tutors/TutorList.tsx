@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Search, Pencil } from 'lucide-react';
+import { Search, Pencil, Trash } from 'lucide-react';
 import { TutorService } from '../../services/api/tutors_service';
 import type { Tutor } from '../../types';
 import { Card } from '../../components/UI/Card';
 import { Pagination } from '../../components/UI/Pagination';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export default function TutorList() {
     const [tutors, setTutors] = useState<Tutor[]>([]);
@@ -35,6 +35,17 @@ export default function TutorList() {
             setError(error.message || 'Erro ao carregar Tutores. Tente novamente.');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleDelete = async (id: number) => {
+        if (!confirm('Tem certeza que deseja excluir este tutor?')) return;
+        try {
+            await TutorService.deleteTutor(id);
+            setTutors(prev => prev.filter(t => t.id !== id));
+        } catch (err) {
+            console.error('Error deleting tutor:', err);
+            alert('Erro ao excluir tutor.');
         }
     };
 
@@ -106,25 +117,34 @@ export default function TutorList() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             {tutors.map((tutor) => (
                                 <div key={tutor.id} className="relative group">
-                                    <Link to={`/tutors/${tutor.id}`}>
-                                        <Card
-                                            title={tutor.name}
-                                            subtitle={`${tutor.email} • ${tutor.phone}`}
-                                            image={tutor.photo_url}
-                                            className="h-full hover:shadow-lg transition-all duration-300"
-                                        >
-                                        </Card>
-                                    </Link>
+                                    <Card
+                                        title={tutor.name}
+                                        subtitle={`${tutor.email} • ${tutor.phone}`}
+                                        image={tutor.photo_url}
+                                        className="h-full hover:shadow-lg transition-all duration-300"
+                                    >
+                                    </Card>
                                     <button
                                         onClick={(e) => {
                                             e.preventDefault();
                                             e.stopPropagation();
                                             navigate(`/tutors/${tutor.id}/edit`);
                                         }}
-                                        className="absolute top-2 right-2 p-2 bg-white/90 dark:bg-black/50 rounded-full shadow-sm hover:bg-blue-50 dark:hover:bg-blue-900/50 text-gray-700 dark:text-gray-200 transition-colors opacity-0 group-hover:opacity-100"
+                                        className="absolute bottom-2 right-2 p-2 bg-white/90 dark:bg-black/50 rounded-full shadow-sm hover:bg-blue-50 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 transition-colors"
                                         title="Editar Tutor"
                                     >
                                         <Pencil className="h-4 w-4" />
+                                    </button>
+                                    <button
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            handleDelete(tutor.id);
+                                        }}
+                                        className="absolute top-2 right-2 p-2 bg-white/90 dark:bg-black/50 rounded-full shadow-sm hover:bg-red-50 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 transition-colors"
+                                        title="Deletar Tutor"
+                                    >
+                                        <Trash className="h-4 w-4" />
                                     </button>
                                 </div>
                             ))}

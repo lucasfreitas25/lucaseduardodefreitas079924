@@ -5,7 +5,7 @@ import type { PetResponseDTO, PetDTO, PetDetailsDTO } from '../../types/dtos';
 export const petsService = {
     getPets: async (filters: PetFilters = {}): Promise<PaginatedResponse<Pet>> => {
         const params = {
-            name: filters.name,
+            nome: filters.name,
             page: (filters.page || 1) - 1, // API is 0-indexed
             size: filters.limit || 10,
         };
@@ -31,6 +31,10 @@ export const petsService = {
     createPet: async (pet: PetDTO): Promise<PetDTO> => {
         const response = await api.post<PetDTO>('/pets', pet);
         return response.data;
+    },
+
+    deletePet: async (id: number): Promise<void> => {
+        await api.delete(`/pets/${id}`);
     },
 
     updatePet: async (id: number, pet: PetDTO): Promise<void> => {

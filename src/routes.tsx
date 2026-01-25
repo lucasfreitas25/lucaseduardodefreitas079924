@@ -10,6 +10,8 @@ import TutorList from './pages/Tutors/TutorList';
 
 import { PrivateRoute } from './components/Auth/PrivateRoute';
 import Login from './pages/Auth/Login';
+import TutorAdd from './pages/Tutors/TutorAdd';
+import TutorEdit from './pages/Tutors/TutorEdit';
 
 export const router = createBrowserRouter([
     {
@@ -47,18 +49,14 @@ export const router = createBrowserRouter([
                         path: 'tutors',
                         element: <TutorList />
                     },
-                    // {
-                    //     path: 'tutors/new',
-                    //     element: <TutorAdd />,
-                    // },
-                    // {
-                    //     path: 'tutors/:id',
-                    //     element: <TutorDetails />,
-                    // },
-                    // {
-                    //     path: 'tutors/:id/edit',
-                    //     element: <TutorEdit />,
-                    // },
+                    {
+                        path: 'tutors/new',
+                        element: <TutorAdd />,
+                    },
+                    {
+                        path: 'tutors/:id/edit',
+                        element: <TutorEdit />,
+                    },
                 ],
             },
         ],

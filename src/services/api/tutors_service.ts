@@ -5,7 +5,7 @@ import type { TutorResponseDTO, TutorDTO, TutorDetailsDTO } from '../../types/dt
 export const TutorService = {
     getTutors: async (filters: TutorFilters = {}): Promise<PaginatedResponse<Tutor>> => {
         const params = {
-            name: filters.name,
+            nome: filters.name,
             page: (filters.page || 1) - 1, // API is 0-indexed
             size: filters.limit || 10,
         };
@@ -33,6 +33,10 @@ export const TutorService = {
         return response.data;
     },
 
+    deleteTutor: async (id: number): Promise<void> => {
+        await api.delete(`/tutores/${id}`);
+    },
+
     updateTutor: async (id: number, tutor: TutorDTO): Promise<void> => {
         await api.put(`/tutores/${id}`, tutor);
     },
@@ -49,6 +53,14 @@ export const TutorService = {
 
     deleteTutorPhoto: async (id: number, photoId: number): Promise<void> => {
         await api.delete(`/tutores/${id}/fotos/${photoId}`);
+    },
+
+    addPet: async (tutorId: number, petId: number): Promise<void> => {
+        await api.post(`/tutores/${tutorId}/pets/${petId}`);
+    },
+
+    removePet: async (tutorId: number, petId: number): Promise<void> => {
+        await api.delete(`/tutores/${tutorId}/pets/${petId}`);
     }
 };
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Trash } from 'lucide-react';
 import { petsService } from '../../services/api/pets_service';
 import type { Pet } from '../../types';
 import { Card } from '../../components/UI/Card';
@@ -43,6 +43,17 @@ export default function PetList() {
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
         setPage(1);
+    };
+
+    const handleDelete = async (id: number) => {
+        if (!confirm('Tem certeza que deseja excluir este pet?')) return;
+        try {
+            await petsService.deletePet(id);
+            setPets(prev => prev.filter(t => t.id !== id));
+        } catch (err) {
+            console.error('Error deleting pet:', err);
+            alert('Erro ao excluir pet.');
+        }
     };
 
     return (
@@ -123,10 +134,21 @@ export default function PetList() {
                                             e.stopPropagation();
                                             navigate(`/pets/${pet.id}/edit`);
                                         }}
-                                        className="absolute top-2 right-2 p-2 bg-white/90 dark:bg-black/50 rounded-full shadow-sm hover:bg-blue-50 dark:hover:bg-blue-900/50 text-gray-700 dark:text-gray-200 transition-colors opacity-0 group-hover:opacity-100"
+                                        className="absolute bottom-2 right-2 p-2 bg-white/90 dark:bg-black/50 rounded-full shadow-sm hover:bg-blue-50 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 transition-colors"
                                         title="Editar Pet"
                                     >
                                         <img src={"/src/assets/edit.svg"} alt={"Editar"} className='w-4 h-4 invert brightness-0' />
+                                    </button>
+                                    <button
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            handleDelete(pet.id);
+                                        }}
+                                        className="absolute top-2 right-2 p-2 bg-white/90 dark:bg-black/50 rounded-full shadow-sm hover:bg-red-50 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 transition-colors"
+                                        title="Deletar Pet"
+                                    >
+                                        <Trash className="h-4 w-4" />
                                     </button>
                                 </div>
                             ))}
