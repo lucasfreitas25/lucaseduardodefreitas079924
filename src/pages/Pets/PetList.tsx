@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Search, Trash } from 'lucide-react';
 import { petsService } from '../../services/api/pets_service';
 import type { Pet } from '../../types';
@@ -6,27 +6,42 @@ import { Card } from '../../components/UI/Card';
 import { Pagination } from '../../components/UI/Pagination';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+
+
 export default function PetList() {
     const [pets, setPets] = useState<Pet[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const navigate = useNavigate();
+    const isFirstLoad = useRef(true);
 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm);
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
 
     useEffect(() => {
         fetchPets();
-    }, [page, searchTerm]);
+    }, [page, debouncedSearchTerm]);
 
     const fetchPets = async () => {
-        setLoading(true);
+        // Only show loading skeleton on first load, not on searches
+        if (isFirstLoad.current) {
+            setLoading(true);
+            isFirstLoad.current = false;
+        }
         setError(null);
         try {
 
             const response = await petsService.getPets({
-                name: searchTerm,
+                name: debouncedSearchTerm,
                 page,
                 limit: 10
             });
@@ -57,8 +72,8 @@ export default function PetList() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <section className="space-y-6">
+            <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Pets Disponíveis</h1>
 
                 <button
@@ -80,9 +95,9 @@ export default function PetList() {
                     </svg>
                     <span>Novo Pet</span>
                 </button>
-            </div>
+            </header>
 
-            <div className="relative w-full">
+            <section className="relative w-full">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Search className="h-5 w-5 text-gray-400" />
                 </div>
@@ -93,10 +108,10 @@ export default function PetList() {
                     value={searchTerm}
                     onChange={handleSearch}
                 />
-            </div>
+            </section>
 
             {error && (
-                <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-lg text-center">
+                <section className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-lg text-center">
                     <p>{error}</p>
                     <button
                         onClick={fetchPets}
@@ -104,21 +119,21 @@ export default function PetList() {
                     >
                         Tentar novamente
                     </button>
-                </div>
+                </section>
             )}
 
             {loading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {[...Array(8)].map((_, i) => (
                         <div key={i} className="bg-white dark:bg-[#1a1a1a] h-80 rounded-xl shadow-sm animate-pulse" />
                     ))}
-                </div>
+                </section>
             ) : (
                 <>
                     {pets.length > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             {pets.map((pet) => (
-                                <div key={pet.id} className="relative group">
+                                <article key={pet.id} className="relative group">
                                     <Link to={`/pets/${pet.id}`}>
                                         <Card
                                             title={pet.name}
@@ -150,13 +165,13 @@ export default function PetList() {
                                     >
                                         <Trash className="h-4 w-4" />
                                     </button>
-                                </div>
+                                </article>
                             ))}
-                        </div>
+                        </section>
                     ) : (
-                        <div className="text-center py-12">
+                        <section className="text-center py-12">
                             <p className="text-gray-500 dark:text-gray-400 text-lg">Nenhum pet encontrado.</p>
-                        </div>
+                        </section>
                     )}
 
                     <Pagination
@@ -166,6 +181,6 @@ export default function PetList() {
                     />
                 </>
             )}
-        </div>
+        </section>
     );
 }

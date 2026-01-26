@@ -27,9 +27,9 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-[#242424] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8 bg-white dark:bg-[#1a1a1a] p-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800">
-                <div className="text-center">
+        <main className="min-h-screen bg-gray-50 dark:bg-[#242424] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            <article className="max-w-md w-full space-y-8 bg-white dark:bg-[#1a1a1a] p-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800">
+                <header className="text-center">
                     <div className="mx-auto h-12 w-12 bg-blue-600 rounded-lg flex items-center justify-center">
                         <Dog className="h-8 w-8 text-white" />
                     </div>
@@ -39,16 +39,16 @@ export default function Login() {
                     <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                         Faça login para acessar o sistema
                     </p>
-                </div>
+                </header>
 
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                     {error && (
-                        <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-lg text-sm text-center">
+                        <div role="alert" className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-lg text-sm text-center">
                             {error}
                         </div>
                     )}
 
-                    <div className="rounded-md shadow-sm -space-y-px">
+                    <fieldset className="rounded-md shadow-sm -space-y-px">
                         <div>
                             <label htmlFor="username" className="sr-only">Usuário</label>
                             <input
@@ -77,7 +77,7 @@ export default function Login() {
                                 onChange={(e) => setPassword(e.target.value)}
                             />
                         </div>
-                    </div>
+                    </fieldset>
 
                     <div>
                         <button
@@ -89,7 +89,7 @@ export default function Login() {
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
+            </article>
+        </main>
     );
 }

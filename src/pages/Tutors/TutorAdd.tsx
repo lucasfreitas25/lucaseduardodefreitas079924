@@ -23,10 +23,49 @@ export default function TutorAdd() {
         endereco: '',
         foto: null,
     });
+    const validarEmail = () => {
+        const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return regex.test(formData.email);
+    };
+    const validarCpf = () => {
+        const regex = /^[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}$/;
+        return regex.test(formData.cpf);
+    };
+
+    const formatCPF = (value: string) => {
+        const numbers = value.replace(/\D/g, '');
+        if (numbers.length <= 11) {
+            return numbers
+                .replace(/(\d{3})(\d)/, '$1.$2')
+                .replace(/(\d{3})(\d)/, '$1.$2')
+                .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+        }
+        return value.slice(0, 14);
+    };
+
+
+    const formatTelefone = (value: string) => {
+        const numbers = value.replace(/\D/g, '');
+        if (numbers.length <= 11) {
+            return numbers
+                .replace(/(\d{2})(\d)/, '($1) $2')
+                .replace(/(\d{5})(\d)/, '$1-$2');
+        }
+        return value.slice(0, 15);
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+
+        let formattedValue = value;
+
+        if (name === 'cpf') {
+            formattedValue = formatCPF(value);
+        } else if (name === 'telefone') {
+            formattedValue = formatTelefone(value);
+        }
+
+        setFormData(prev => ({ ...prev, [name]: formattedValue }));
     };
 
     const handlePhotoSelect = (file: File | null) => {
@@ -50,7 +89,13 @@ export default function TutorAdd() {
                 endereco: formData.endereco,
             };
 
-            // 1. Create Tutor
+            if (!validarEmail()) {
+                throw new Error('Email inválido.');
+            }
+
+            if (!validarCpf()) {
+                throw new Error('CPF inválido.');
+            }
             await TutorService.createTutor(tutorData);
 
             navigate('/tutors');
@@ -63,7 +108,7 @@ export default function TutorAdd() {
     };
 
     return (
-        <div className="max-w-2xl mx-auto space-y-6">
+        <main className="max-w-2xl mx-auto space-y-6">
             <button
                 onClick={() => navigate('/tutors')}
                 className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
@@ -72,8 +117,8 @@ export default function TutorAdd() {
                 Voltar
             </button>
 
-            <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8">
-                <div className="flex items-center gap-4 mb-8">
+            <article className="bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8">
+                <header className="flex items-center gap-4 mb-8">
                     <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
                         <Dog className="h-6 w-6 text-blue-600 dark:text-blue-300" />
                     </div>
@@ -81,10 +126,10 @@ export default function TutorAdd() {
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Adicionar Novo Tutor</h1>
                         <p className="text-gray-500 dark:text-gray-400">Preencha as informações do tutor</p>
                     </div>
-                </div>
+                </header>
 
                 {error && (
-                    <div className="mb-6 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-lg">
+                    <div role="alert" className="mb-6 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-lg">
                         {error}
                     </div>
                 )}
@@ -97,7 +142,7 @@ export default function TutorAdd() {
                         />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <fieldset className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="col-span-2">
                             <label htmlFor="nome" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Nome do Tutor *
@@ -141,6 +186,7 @@ export default function TutorAdd() {
                                 value={formData.cpf}
                                 onChange={handleChange}
                                 required
+                                maxLength={14}
                                 className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                                 placeholder="000.000.000-00"
                             />
@@ -157,8 +203,9 @@ export default function TutorAdd() {
                                 value={formData.telefone}
                                 onChange={handleChange}
                                 required
+                                maxLength={15}
                                 className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                                placeholder="Ex: (65) 99999-9999"
+                                placeholder="(00) 00000-0000"
                             />
                         </div>
 
@@ -177,9 +224,9 @@ export default function TutorAdd() {
                                 placeholder="Rua Exemplo, 123"
                             />
                         </div>
-                    </div>
+                    </fieldset>
 
-                    <div className="flex justify-end pt-6 border-t border-gray-100 dark:border-gray-800">
+                    <footer className="flex justify-end pt-6 border-t border-gray-100 dark:border-gray-800">
                         <button
                             type="submit"
                             disabled={loading}
@@ -197,9 +244,9 @@ export default function TutorAdd() {
                                 </>
                             )}
                         </button>
-                    </div>
+                    </footer>
                 </form>
-            </div>
-        </div>
+            </article>
+        </main>
     );
 }

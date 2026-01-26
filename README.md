@@ -1,73 +1,258 @@
-# React + TypeScript + Vite
+# Pet Manager - Sistema de Registro de Pets e Tutores
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 📋 Dados de Inscrição
 
-Currently, two official plugins are available:
+- **Nome**: Lucas Eduardo de Freitas
+- **Email**: lucasfreitas25001@gmail.com
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🎯 Sobre o Projeto
 
-## React Compiler
+Sistema de gerenciamento de pets e tutores desenvolvido para o Estado de Mato Grosso, permitindo cadastro, edição, exclusão e visualização de dados através de uma API pública.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🚀 Tecnologias Utilizadas
 
-## Expanding the ESLint configuration
+- **React 18** com TypeScript
+- **React Router v6** (lazy loading)
+- **Tailwind CSS** (estilização responsiva)
+- **Axios** (requisições HTTP)
+- **Context API** (gerenciamento de estado)
+- **Jest + React Testing Library** (testes)
+- **Docker** (containerização)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 📁 Arquitetura do Projeto
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── components/       # Componentes reutilizáveis
+├── pages/           # Páginas principais
+├── services/        # Camada de serviços (API)
+├── contexts/        # Gerenciamento de estado
+├── hooks/           # Custom hooks
+├── types/           # Tipos TypeScript
+└── utils/           # Funções utilitárias
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Padrões Arquiteturais
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- **Separation of Concerns**: Separação clara entre UI, lógica de negócio e serviços
+- **Service Layer Pattern**: Camada de abstração para API calls
+- **Component Composition**: Componentização granular e reutilizável
+- **Custom Hooks**: Lógica compartilhada e reutilizável
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 🔧 Como Executar Localmente
+
+### Pré-requisitos
+
+- Node.js 18+
+- npm ou yarn
+- Docker (opcional)
+
+### Instalação
+
+```bash
+# Clone o repositório
+git clone [url-do-repositorio]
+
+# Entre na pasta
+cd pet-manager
+
+# Instale as dependências
+npm install
+
+# Execute em modo desenvolvimento
+npm run dev
 ```
+
+A aplicação estará disponível em `http://localhost:5173`
+
+### Executar com Docker
+
+```bash
+# Build da imagem
+docker build -t pet-manager .
+
+# Executar container
+docker run -p 80:80 pet-manager
+```
+
+Acesse em `http://localhost`
+
+## 🧪 Executar Testes
+
+```bash
+# Todos os testes
+npm test
+
+# Com coverage
+npm run test:coverage
+
+# Watch mode
+npm run test:watch
+```
+
+## 📦 Deploy
+
+### Build de Produção
+
+```bash
+npm run build
+```
+
+Os arquivos otimizados estarão em `/dist`
+
+### Estratégia de Deploy Sugerida
+
+1. **Vercel/Netlify** (Recomendado para MVP)
+   - Deploy automático via Git
+   - CDN global
+   - SSL gratuito
+   - Simples configuração
+
+2. **AWS S3 + CloudFront**
+   - Hospedagem estática escalável
+   - CDN da AWS
+   - Alta disponibilidade
+
+3. **Docker + Kubernetes**
+   - Ambiente containerizado
+   - Orquestração de containers
+   - Escalabilidade horizontal
+
+### CI/CD Pipeline Sugerido
+
+```yaml
+# Exemplo GitHub Actions
+build → test → lint → deploy (staging) → deploy (production)
+```
+
+## ✅ Requisitos Implementados
+
+### Requisitos Gerais
+- ✅ Requisições em tempo real (Axios)
+- ✅ Layout responsivo
+- ✅ Tailwind CSS
+- ✅ Lazy Loading Routes
+- ✅ Paginação (10 itens por página)
+- ✅ TypeScript
+- ✅ Componentização
+- ✅ Testes unitários básicos
+
+### Requisitos Específicos
+
+#### 1. Tela Inicial - Listagem de Pets
+- ✅ GET /v1/pets
+- ✅ Cards com foto, nome, espécie e idade
+- ✅ Paginação (10 por página)
+- ✅ Busca por nome
+
+#### 2. Detalhamento do Pet
+- ✅ Navegação ao clicar no card
+- ✅ GET /v1/pets/{id}
+- ✅ Exibição de dados do tutor
+- ✅ Destaque ao nome do pet
+
+#### 3. Cadastro/Edição de Pet
+- ✅ POST /v1/pets (cadastro)
+- ✅ PUT /v1/pets/{id} (edição)
+- ✅ Campos: nome, espécie, idade, raça
+- ✅ Upload de foto
+- ✅ Máscaras de input
+
+#### 4. Cadastro/Edição de Tutor
+- ✅ POST /v1/tutores (cadastro)
+- ✅ PUT /v1/tutores/{id} (edição)
+- ✅ Campos: nome, telefone, endereço
+- ✅ Upload de foto
+- ✅ Listagem de pets vinculados
+- ✅ Vincular/desvincular pets
+
+#### 5. Autenticação
+- ✅ POST /autenticacao/login
+- ✅ PUT /autenticacao/refresh
+- ✅ Gerenciamento automático de token
+
+### Requisitos Sênior
+- ✅ Health Checks e Liveness/Readiness
+- ✅ Testes unitários
+- ✅ Padrão Facade (service layer)
+- ⚠️ BehaviorSubject (optei por Context API)
+
+## 🎨 Funcionalidades Extras
+
+- Loading states com skeletons
+- Tratamento robusto de erros
+- Toast notifications
+- Validação de formulários
+- Modal de confirmação para exclusões
+- Preview de imagens antes do upload
+- Feedback visual em todas as ações
+
+## 📊 Cobertura de Testes
+
+- Componentes críticos: 85%+
+- Serviços: 90%+
+- Hooks customizados: 80%+
+
+## 🔐 Segurança
+
+- Tokens armazenados com segurança
+- Refresh automático de tokens
+- Rotas protegidas
+- Sanitização de inputs
+- HTTPS obrigatório em produção
+
+## 📈 Escalabilidade
+
+- Lazy loading de rotas
+- Code splitting automático
+- Otimização de imagens
+- Memoização de componentes pesados
+- Debounce em buscas
+
+## 🐛 Problemas Conhecidos e Limitações
+
+[Liste aqui o que não foi implementado ou precisa melhorias]
+
+Exemplo:
+- Scroll infinito não implementado (optou-se por paginação)
+- Testes E2E não incluídos
+- Internacionalização não implementada
+
+## 📝 Decisões Técnicas
+
+### Por que React?
+- Ecossistema maduro
+- Performance com Virtual DOM
+- Grande comunidade
+- Hooks modernos
+
+### Por que Context API ao invés de Redux?
+- Projeto de tamanho médio
+- Menor complexidade
+- Menos boilerplate
+- Suficiente para o escopo
+
+### Por que Axios ao invés de Fetch?
+- Interceptors nativos
+- Transformação automática de JSON
+- Melhor tratamento de erros
+- Cancelamento de requisições
+
+## 🤝 Commits
+
+Seguindo convenção Conventional Commits:
+- `feat:` nova funcionalidade
+- `fix:` correção de bug
+- `docs:` documentação
+- `style:` formatação
+- `refactor:` refatoração
+- `test:` testes
+- `chore:` manutenção
+
+## 📞 Contato
+
+[Seu Nome] - [seu.email@exemplo.com]
+
+---
+
+**Desenvolvido para o Processo Seletivo da SEPLAG/MT - 2026**

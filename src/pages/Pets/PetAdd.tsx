@@ -65,7 +65,7 @@ export default function PetAdd() {
     };
 
     return (
-        <div className="max-w-2xl mx-auto space-y-6">
+        <main className="max-w-2xl mx-auto space-y-6">
             <button
                 onClick={() => navigate('/pets')}
                 className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
@@ -74,8 +74,8 @@ export default function PetAdd() {
                 Voltar
             </button>
 
-            <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8">
-                <div className="flex items-center gap-4 mb-8">
+            <article className="bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8">
+                <header className="flex items-center gap-4 mb-8">
                     <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
                         <Dog className="h-6 w-6 text-blue-600 dark:text-blue-300" />
                     </div>
@@ -83,10 +83,10 @@ export default function PetAdd() {
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Adicionar Novo Pet</h1>
                         <p className="text-gray-500 dark:text-gray-400">Preencha as informações do animal</p>
                     </div>
-                </div>
+                </header>
 
                 {error && (
-                    <div className="mb-6 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-lg">
+                    <div role="alert" className="mb-6 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-lg">
                         {error}
                     </div>
                 )}
@@ -99,7 +99,7 @@ export default function PetAdd() {
                         />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <fieldset className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="col-span-2">
                             <label htmlFor="nome" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Nome do Pet *
@@ -148,9 +148,9 @@ export default function PetAdd() {
                                 placeholder="Ex: 3"
                             />
                         </div>
-                    </div>
+                    </fieldset>
 
-                    <div className="flex justify-end pt-6 border-t border-gray-100 dark:border-gray-800">
+                    <footer className="flex justify-end pt-6 border-t border-gray-100 dark:border-gray-800">
                         <button
                             type="submit"
                             disabled={loading}
@@ -168,9 +168,9 @@ export default function PetAdd() {
                                 </>
                             )}
                         </button>
-                    </div>
+                    </footer>
                 </form>
-            </div>
-        </div>
+            </article>
+        </main>
     );
 }

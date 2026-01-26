@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Search, Pencil, Trash } from 'lucide-react';
 import { TutorService } from '../../services/api/tutors_service';
 import type { Tutor } from '../../types';
@@ -11,20 +11,35 @@ export default function TutorList() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const navigate = useNavigate();
+    const isFirstLoad = useRef(true);
+
+    // Debounce search term
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm);
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
 
     useEffect(() => {
         fetchTutors();
-    }, [page, searchTerm]);
+    }, [page, debouncedSearchTerm]);
 
     const fetchTutors = async () => {
-        setLoading(true);
+        // Only show loading skeleton on first load, not on searches
+        if (isFirstLoad.current) {
+            setLoading(true);
+            isFirstLoad.current = false;
+        }
         setError(null);
         try {
             const response = await TutorService.getTutors({
-                name: searchTerm,
+                name: debouncedSearchTerm,
                 page,
                 limit: 10
             });
@@ -55,8 +70,8 @@ export default function TutorList() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <main className="space-y-6">
+            <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Tutores Disponíveis</h1>
 
                 <button
@@ -78,9 +93,9 @@ export default function TutorList() {
                     </svg>
                     <span>Novo Tutor</span>
                 </button>
-            </div>
+            </header>
 
-            <div className="relative w-full">
+            <section className="relative w-full">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Search className="h-5 w-5 text-gray-400" />
                 </div>
@@ -91,10 +106,10 @@ export default function TutorList() {
                     value={searchTerm}
                     onChange={handleSearch}
                 />
-            </div>
+            </section>
 
             {error && (
-                <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-lg text-center">
+                <div role="alert" className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-lg text-center">
                     <p>{error}</p>
                     <button
                         onClick={fetchTutors}
@@ -114,9 +129,9 @@ export default function TutorList() {
             ) : (
                 <>
                     {tutors.length > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             {tutors.map((tutor) => (
-                                <div key={tutor.id} className="relative group">
+                                <article key={tutor.id} className="relative group">
                                     <Card
                                         title={tutor.name}
                                         subtitle={`${tutor.email} • ${tutor.phone}`}
@@ -146,9 +161,9 @@ export default function TutorList() {
                                     >
                                         <Trash className="h-4 w-4" />
                                     </button>
-                                </div>
+                                </article>
                             ))}
-                        </div>
+                        </section>
                     ) : (
                         <div className="text-center py-12">
                             <p className="text-gray-500 dark:text-gray-400 text-lg">Nenhum tutor encontrado.</p>
@@ -162,6 +177,6 @@ export default function TutorList() {
                     />
                 </>
             )}
-        </div>
+        </main>
     );
 }
