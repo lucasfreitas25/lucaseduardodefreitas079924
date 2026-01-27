@@ -44,11 +44,16 @@ export default function TutorEdit() {
     const fetchTutor = async (tutorId: number) => {
         try {
             const data = await TutorService.getTutorById(tutorId);
+
+            // Convert to string and format CPF and telefone
+            const cpfValue = data.cpf ? String(data.cpf) : '';
+            const telefoneValue = data.telefone ? String(data.telefone) : '';
+
             setFormData({
                 nome: data.nome,
                 email: data.email || '',
-                cpf: data.cpf || '',
-                telefone: data.telefone,
+                cpf: formatCPF(cpfValue),
+                telefone: formatTelefone(telefoneValue),
                 endereco: data.endereco,
                 foto: data.foto || null,
             });
@@ -145,19 +150,23 @@ export default function TutorEdit() {
         setError(null);
 
         try {
+            // Remove CPF and telefone formatting before sending
+            // Ensure they are strings first
+            const cleanCPF = formData.cpf ? String(formData.cpf).replace(/\D/g, '') : '';
+            const cleanTelefone = formData.telefone ? String(formData.telefone).replace(/\D/g, '') : '';
+
             const tutorData: any = {
                 nome: formData.nome,
                 email: formData.email,
-                cpf: formData.cpf,
-                telefone: formData.telefone,
+                cpf: cleanCPF,
+                telefone: cleanTelefone,
                 endereco: formData.endereco,
-                // Only send foto in JSON if it's NOT a File (i.e. existing photo object or null)
-                // If it's a File, we send it separately via uploadTutorPhoto
-                foto: formData.foto instanceof File ? null : formData.foto,
+                // DO NOT send foto field - it's handled separately via upload endpoint
             };
 
             await TutorService.updateTutor(Number(id), tutorData);
 
+            // Upload photo separately if user selected a new one
             if (formData.foto instanceof File) {
                 await TutorService.uploadTutorPhoto(Number(id), formData.foto);
             }

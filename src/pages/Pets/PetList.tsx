@@ -43,7 +43,7 @@ export default function PetList() {
             const response = await petsService.getPets({
                 name: debouncedSearchTerm,
                 page,
-                limit: 10
+                limit: 12
             });
             setPets(response.items);
             setTotalPages(response.total_pages || Math.ceil(response.total / response.per_page) || 1);
@@ -137,8 +137,8 @@ export default function PetList() {
                                     <Link to={`/pets/${pet.id}`}>
                                         <Card
                                             title={pet.name}
-                                            subtitle={`${pet.breed} • ${pet.age} anos`}
-                                            image={pet.photo_url}
+                                            subtitle={`${pet.breed} ${pet.age} anos`}
+                                            image={pet.photo_url || 'src/assets/imagem_pet_sem_foto.png'}
                                             className="h-full hover:shadow-lg transition-all duration-300"
                                         >
                                         </Card>
@@ -152,7 +152,7 @@ export default function PetList() {
                                         className="absolute bottom-2 right-2 p-2 bg-white/90 dark:bg-black/50 rounded-full shadow-sm hover:bg-blue-50 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 transition-colors"
                                         title="Editar Pet"
                                     >
-                                        <img src={"/src/assets/edit.svg"} alt={"Editar"} className='w-4 h-4 invert brightness-0' />
+                                        <img src={"/src/assets/edit.svg"} alt={"Editar"} className='w-4 h-4 dark:invert brightness-0 ' />
                                     </button>
                                     <button
                                         onClick={(e) => {

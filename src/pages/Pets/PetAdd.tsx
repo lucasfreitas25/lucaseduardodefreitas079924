@@ -47,7 +47,7 @@ export default function PetAdd() {
                 idade: Number(formData.idade),
             };
 
-            // 1. Create Pet
+
             await petsService.createPet(petData);
 
             // 2. Upload Photo skipped as requested
@@ -111,6 +111,7 @@ export default function PetAdd() {
                                 value={formData.nome}
                                 onChange={handleChange}
                                 required
+                                maxLength={50}
                                 className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                                 placeholder="Ex: Rex"
                             />
@@ -127,6 +128,7 @@ export default function PetAdd() {
                                 value={formData.raca}
                                 onChange={handleChange}
                                 required
+                                maxLength={30}
                                 className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                                 placeholder="Ex: Golden Retriever"
                             />

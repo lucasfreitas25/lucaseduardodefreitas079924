@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import { Dog, Menu, X } from 'lucide-react';
+import { ThemeToggle } from '../UI/ThemeToggle';
 
 export function MainLayout() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -28,14 +29,21 @@ export function MainLayout() {
                             </Link>
                         </nav>
 
-                        {/* Mobile Menu Button */}
-                        <div className="md:hidden">
-                            <button
-                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                                className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
-                            >
-                                {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-                            </button>
+                        {/* Theme Toggle & Mobile Menu Button */}
+                        <div className="flex items-center gap-3">
+                            <ThemeToggle />
+                            <Link to="/login" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors">
+                                Sair
+                            </Link>
+
+                            <div className="md:hidden">
+                                <button
+                                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                    className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
+                                >
+                                    {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

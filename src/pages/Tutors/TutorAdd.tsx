@@ -82,13 +82,6 @@ export default function TutorAdd() {
                 throw new Error('Por favor, preencha todos os campos obrigatórios.');
             }
 
-            const tutorData: any = {
-                nome: formData.nome,
-                email: formData.email,
-                telefone: formData.telefone,
-                endereco: formData.endereco,
-            };
-
             if (!validarEmail()) {
                 throw new Error('Email inválido.');
             }
@@ -96,7 +89,25 @@ export default function TutorAdd() {
             if (!validarCpf()) {
                 throw new Error('CPF inválido.');
             }
-            await TutorService.createTutor(tutorData);
+
+            // Remove formatting before sending to API
+            // Ensure they are strings first
+            const cleanCPF = formData.cpf ? String(formData.cpf).replace(/\D/g, '') : '';
+            const cleanTelefone = formData.telefone ? String(formData.telefone).replace(/\D/g, '') : '';
+
+            const tutorData: any = {
+                nome: formData.nome,
+                email: formData.email,
+                cpf: cleanCPF,
+                telefone: cleanTelefone,
+                endereco: formData.endereco,
+            };
+
+            const newTutor = await TutorService.createTutor(tutorData);
+
+            if (formData.foto && newTutor.id) {
+                await TutorService.uploadTutorPhoto(newTutor.id, formData.foto);
+            }
 
             navigate('/tutors');
         } catch (err: any) {
@@ -154,6 +165,7 @@ export default function TutorAdd() {
                                 value={formData.nome}
                                 onChange={handleChange}
                                 required
+                                maxLength={100}
                                 className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                                 placeholder="Ex: João da Silva"
                             />
@@ -220,6 +232,7 @@ export default function TutorAdd() {
                                 value={formData.endereco}
                                 onChange={handleChange}
                                 required
+                                maxLength={250}
                                 className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                                 placeholder="Rua Exemplo, 123"
                             />
