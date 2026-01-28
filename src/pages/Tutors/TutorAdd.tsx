@@ -154,7 +154,7 @@ export default function TutorAdd() {
                     </div>
 
                     <fieldset className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="col-span-2">
+                        <div className="">
                             <label htmlFor="nome" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Nome do Tutor *
                             </label>
@@ -221,7 +221,7 @@ export default function TutorAdd() {
                             />
                         </div>
 
-                        <div className="col-span-2">
+                        <div className="">
                             <label htmlFor="endereco" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Endereço *
                             </label>
@@ -239,7 +239,7 @@ export default function TutorAdd() {
                         </div>
                     </fieldset>
 
-                    <footer className="flex justify-end pt-6 border-t border-gray-100 dark:border-gray-800">
+                    <footer className="flex justify-center md:justify-end pt-6 border-t border-gray-100 dark:border-gray-800">
                         <button
                             type="submit"
                             disabled={loading}

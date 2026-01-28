@@ -91,7 +91,7 @@ export default function PetAdd() {
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6 ">
                     <div className="flex justify-center mb-8">
                         <PhotoUpload
                             onPhotoSelect={handlePhotoSelect}
@@ -99,8 +99,8 @@ export default function PetAdd() {
                         />
                     </div>
 
-                    <fieldset className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="col-span-2">
+                    <fieldset className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 ">
+                        <div className="">
                             <label htmlFor="nome" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Nome do Pet *
                             </label>
@@ -152,7 +152,7 @@ export default function PetAdd() {
                         </div>
                     </fieldset>
 
-                    <footer className="flex justify-end pt-6 border-t border-gray-100 dark:border-gray-800">
+                    <footer className="flex justify-center md:justify-end pt-6 border-t border-gray-100 dark:border-gray-800">
                         <button
                             type="submit"
                             disabled={loading}

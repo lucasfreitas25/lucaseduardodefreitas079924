@@ -89,7 +89,6 @@ export default function TutorEdit() {
     const handlePhotoDelete = async () => {
         if (!id) return;
 
-        // Check if we have a persisted photo with an ID
         const photoId = (formData.foto as any)?.id;
         if (!photoId) return;
 
@@ -104,7 +103,6 @@ export default function TutorEdit() {
         }
     };
 
-    // Função para formatar CPF
     const formatCPF = (value: string) => {
         const numbers = value.replace(/\D/g, '');
         if (numbers.length <= 11) {
@@ -113,10 +111,9 @@ export default function TutorEdit() {
                 .replace(/(\d{3})(\d)/, '$1.$2')
                 .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
         }
-        return value.slice(0, 14); // Limita ao tamanho máximo formatado
+        return value.slice(0, 14);
     };
 
-    // Função para formatar telefone
     const formatTelefone = (value: string) => {
         const numbers = value.replace(/\D/g, '');
         if (numbers.length <= 11) {
@@ -256,7 +253,7 @@ export default function TutorEdit() {
                         />
                     </div>
                     <fieldset className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="col-span-2">
+                        <div className="">
                             <label htmlFor="nome" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Nome do Tutor *
                             </label>
@@ -271,7 +268,7 @@ export default function TutorEdit() {
                             />
                         </div>
 
-                        <div className="col-span-2 md:col-span-1">
+                        <div className=" md:col-span-1">
                             <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Email *
                             </label>
@@ -286,7 +283,7 @@ export default function TutorEdit() {
                             />
                         </div>
 
-                        <div className="col-span-2 md:col-span-1">
+                        <div className=" md:col-span-1">
                             <label htmlFor="cpf" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 CPF *
                             </label>
@@ -393,7 +390,7 @@ export default function TutorEdit() {
                         </div>
                     </section>
 
-                    <footer className="flex justify-end pt-6 border-t border-gray-100 dark:border-gray-800">
+                    <footer className="flex justify-center md:justify-end pt-6 border-t border-gray-100 dark:border-gray-800">
                         <button
                             type="submit"
                             disabled={saving}

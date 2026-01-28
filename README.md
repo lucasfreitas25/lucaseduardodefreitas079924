@@ -4,6 +4,7 @@
 
 - **Nome**: Lucas Eduardo de Freitas
 - **Email**: lucasfreitas25001@gmail.com
+- **Nº de inscrição**: 16544
 
 ## 🎯 Sobre o Projeto
 
