@@ -43,7 +43,7 @@ export default function PetList() {
             const response = await petsService.getPets({
                 name: debouncedSearchTerm,
                 page,
-                limit: 12
+                limit: 10
             });
             setPets(response.items);
             setTotalPages(response.total_pages || Math.ceil(response.total / response.per_page) || 1);

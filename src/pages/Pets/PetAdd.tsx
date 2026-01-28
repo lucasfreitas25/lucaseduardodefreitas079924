@@ -48,8 +48,10 @@ export default function PetAdd() {
             };
 
 
-            await petsService.createPet(petData);
-
+            const newPet = await petsService.createPet(petData);
+            if (formData.foto && newPet.id) {
+                await petsService.uploadPetPhoto(newPet.id, formData.foto);
+            }
             // 2. Upload Photo skipped as requested
             // if (formData.foto && createdPet.id) {
             //     await petsService.uploadPetPhoto(createdPet.id, formData.foto);

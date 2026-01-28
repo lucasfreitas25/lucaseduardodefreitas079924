@@ -136,7 +136,7 @@ build → test → lint → deploy (staging) → deploy (production)
 - ✅ Paginação (10 itens por página)
 - ✅ TypeScript
 - ✅ Componentização
-- ✅ Testes unitários básicos
+- ✅ Testes unitários (Serviços e Componentes)
 
 ### Requisitos Específicos
 
@@ -190,9 +190,9 @@ build → test → lint → deploy (staging) → deploy (production)
 
 ## 📊 Cobertura de Testes
 
-- Componentes críticos: 85%+
-- Serviços: 90%+
-- Hooks customizados: 80%+
+- Componentes: `Card.test.tsx`
+- Serviços: `pets_service.test.ts`
+- Cobertura: Focada nos fluxos principais de dados e renderização.
 
 ## 🔐 Segurança
 

@@ -148,7 +148,7 @@ export default function TutorList() {
                                         className="absolute bottom-2 right-2 p-2 bg-white/90 dark:bg-black/50 rounded-full shadow-sm hover:bg-blue-50 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 transition-colors"
                                         title="Editar Tutor"
                                     >
-                                        <img src={"/src/assets/edit.svg"} alt={"Editar"} className='w-4 h-4 invert brightness-0' />
+                                        <img src={"/src/assets/edit.svg"} alt={"Editar"} className='w-4 h-4 dark:invert brightness-0' />
                                     </button>
                                     <button
                                         onClick={(e) => {
