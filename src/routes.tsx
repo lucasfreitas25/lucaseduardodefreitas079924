@@ -14,7 +14,7 @@ const TutorEdit = lazy(() => import('./pages/Tutors/TutorEdit'));
 
 import { PrivateRoute } from './components/Auth/PrivateRoute';
 
-// Loading fallback component
+// Aplicando lazy load nas rotas
 const PageLoader = () => (
     <div className="flex items-center justify-center min-h-[60vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>

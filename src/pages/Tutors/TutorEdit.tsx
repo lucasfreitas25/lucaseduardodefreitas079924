@@ -4,6 +4,7 @@ import { ArrowLeft, Dog, Save, Plus, Trash2 } from 'lucide-react';
 import { TutorService } from '../../services/api/tutors_service';
 import { petsService } from '../../services/api/pets_service';
 import { PhotoUpload } from '../../components/Common/PhotoUpload';
+import { formatCPF, formatTelefone } from '../../utils/formatters';
 import type { PetDTO } from '../../types/dtos';
 
 export default function TutorEdit() {
@@ -101,27 +102,6 @@ export default function TutorEdit() {
             console.error('Error deleting photo:', err);
             alert('Erro ao deletar foto');
         }
-    };
-
-    const formatCPF = (value: string) => {
-        const numbers = value.replace(/\D/g, '');
-        if (numbers.length <= 11) {
-            return numbers
-                .replace(/(\d{3})(\d)/, '$1.$2')
-                .replace(/(\d{3})(\d)/, '$1.$2')
-                .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-        }
-        return value.slice(0, 14);
-    };
-
-    const formatTelefone = (value: string) => {
-        const numbers = value.replace(/\D/g, '');
-        if (numbers.length <= 11) {
-            return numbers
-                .replace(/(\d{2})(\d)/, '($1) $2')
-                .replace(/(\d{5})(\d)/, '$1-$2');
-        }
-        return value.slice(0, 15); // Limita ao tamanho máximo formatado
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {

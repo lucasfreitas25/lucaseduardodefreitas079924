@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Dog, Save } from 'lucide-react';
 import { TutorService } from '../../services/api/tutors_service';
 import { PhotoUpload } from '../../components/Common/PhotoUpload';
+import { validarEmail, validarCpf } from '../../utils/validators';
+import { formatCPF, formatTelefone } from '../../utils/formatters';
 
 export default function TutorAdd() {
     const navigate = useNavigate();
@@ -23,37 +25,6 @@ export default function TutorAdd() {
         endereco: '',
         foto: null,
     });
-    const validarEmail = () => {
-        const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        return regex.test(formData.email);
-    };
-    const validarCpf = () => {
-        const regex = /^[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}$/;
-        return regex.test(formData.cpf);
-    };
-
-    const formatCPF = (value: string) => {
-        const numbers = value.replace(/\D/g, '');
-        if (numbers.length <= 11) {
-            return numbers
-                .replace(/(\d{3})(\d)/, '$1.$2')
-                .replace(/(\d{3})(\d)/, '$1.$2')
-                .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-        }
-        return value.slice(0, 14);
-    };
-
-
-    const formatTelefone = (value: string) => {
-        const numbers = value.replace(/\D/g, '');
-        if (numbers.length <= 11) {
-            return numbers
-                .replace(/(\d{2})(\d)/, '($1) $2')
-                .replace(/(\d{5})(\d)/, '$1-$2');
-        }
-        return value.slice(0, 15);
-    };
-
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
 
@@ -82,11 +53,11 @@ export default function TutorAdd() {
                 throw new Error('Por favor, preencha todos os campos obrigatórios.');
             }
 
-            if (!validarEmail()) {
+            if (!validarEmail(formData.email)) {
                 throw new Error('Email inválido.');
             }
 
-            if (!validarCpf()) {
+            if (!validarCpf(formData.cpf)) {
                 throw new Error('CPF inválido.');
             }
 

@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { TutorService } from '../services/api/tutors_service';
-import { api } from '../services/api/index';
+import { TutorService } from './tutors_service';
+import { api } from './index';
 
-vi.mock('../services/api/index', () => ({
+vi.mock('./index', () => ({
     api: {
         get: vi.fn(),
         post: vi.fn(),
@@ -16,7 +16,7 @@ describe('tutorsService', () => {
         vi.clearAllMocks();
     });
 
-    it('getTutors should fetch tutors with correct parameters and map DTO to domain', async () => {
+    it('getTutors deveria buscar tutores com parâmetros corretos e mapear DTO para domínio', async () => {
         const mockDto = {
             content: [
                 {
@@ -57,7 +57,7 @@ describe('tutorsService', () => {
         expect(result.page).toBe(1);
     });
 
-    it('getTutorById should return tutor details', async () => {
+    it('getTutorById deveria retornar os detalhes do tutor', async () => {
         const mockTutor = { id: 1, nome: 'Lucas Freitas' };
         vi.mocked(api.get).mockResolvedValue({ data: mockTutor });
 
@@ -67,7 +67,7 @@ describe('tutorsService', () => {
         expect(result).toEqual(mockTutor);
     });
 
-    it('deleteTutor should call API to delete tutor', async () => {
+    it('deleteTutor deveria chamar a API para deletar o tutor', async () => {
         vi.mocked(api.delete).mockResolvedValue({ data: {} });
 
         await TutorService.deleteTutor(1);
@@ -75,7 +75,7 @@ describe('tutorsService', () => {
         expect(api.delete).toHaveBeenCalledWith('/tutores/1');
     });
 
-    it('updateTutor should call API to update tutor', async () => {
+    it('updateTutor deveria chamar a API para atualizar o tutor', async () => {
         const mockTutor = {
             id: 1,
             nome: 'Lucas Freitas',

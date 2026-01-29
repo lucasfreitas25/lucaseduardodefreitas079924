@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { petsService } from '../services/api/pets_service';
-import { api } from '../services/api/index';
+import { petsService } from './pets_service';
+import { api } from './index';
 
 vi.mock('./index', () => ({
     api: {
@@ -16,7 +16,7 @@ describe('petsService', () => {
         vi.clearAllMocks();
     });
 
-    it('getPets should fetch pets with correct parameters and map DTO to domain', async () => {
+    it('getPets deveria buscar pets com parâmetros corretos e mapear DTO para domínio', async () => {
         const mockDto = {
             content: [
                 { id: 1, nome: 'Rex', raca: 'SRD', idade: 3, foto: { url: 'rex.jpg' } },
@@ -47,7 +47,7 @@ describe('petsService', () => {
         expect(result.page).toBe(1);
     });
 
-    it('getPetById should return pet details', async () => {
+    it('getPetById deveria retornar os detalhes do pet', async () => {
         const mockPet = { id: 1, nome: 'Rex' };
         vi.mocked(api.get).mockResolvedValue({ data: mockPet });
 
@@ -57,7 +57,7 @@ describe('petsService', () => {
         expect(result).toEqual(mockPet);
     });
 
-    it('deletePet should call API to delete pet', async () => {
+    it('deletePet deveria chamar a API para deletar o pet', async () => {
         vi.mocked(api.delete).mockResolvedValue({ data: {} });
 
         await petsService.deletePet(1);
@@ -65,7 +65,7 @@ describe('petsService', () => {
         expect(api.delete).toHaveBeenCalledWith('/pets/1');
     });
 
-    it('updatePet should call API to update pet', async () => {
+    it('updatePet deveria chamar a API para atualizar o pet', async () => {
         const mockPet = {
             id: 1,
             nome: 'Rex',
