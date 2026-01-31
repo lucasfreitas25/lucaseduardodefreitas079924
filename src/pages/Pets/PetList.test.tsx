@@ -36,15 +36,13 @@ describe('PetList', () => {
 
         renderWithRouter(<PetList />);
 
-        // O loading skeleton deve aparecer (representado por divs com animate-pulse)
-        // Como o skeleton não tem texto, verificamos se o conteúdo final aparece
         await waitFor(() => {
             expect(screen.getByText('Rex')).toBeDefined();
             expect(screen.getByText('Thor')).toBeDefined();
         });
     });
 
-    it('mostra o estado vazio quando nenhum pet é encontrado', async () => {
+    it('deve mostrar o estado vazio quando nenhum pet é encontrado', async () => {
         vi.mocked(petsService.getPets).mockResolvedValue({
             items: [],
             total: 0,
@@ -60,7 +58,7 @@ describe('PetList', () => {
         });
     });
 
-    it('atualiza a busca ao digitar no campo de busca', async () => {
+    it('deve atualizar a busca ao digitar no campo de busca', async () => {
         vi.mocked(petsService.getPets).mockResolvedValue({
             items: [],
             total: 0,
@@ -81,7 +79,7 @@ describe('PetList', () => {
         }, { timeout: 1000 });
     });
 
-    it('chama deletePet quando o ícone de lixeira é clicado', async () => {
+    it('deve chamar deletePet quando o ícone de lixeira é clicado', async () => {
         const mockPets = [{ id: 1, name: 'Rex', breed: 'SRD', age: 3, photo_url: 'rex.jpg' }];
 
         vi.mocked(petsService.getPets).mockResolvedValue({
