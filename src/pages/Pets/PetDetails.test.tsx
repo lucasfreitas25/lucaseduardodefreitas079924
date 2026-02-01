@@ -1,7 +1,7 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '../../test/test-utils';
 import { petsService } from '../../services/api/pets_service';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import PetDetails from './PetDetails';
 
 vi.mock('../../services/api/pets_service', () => ({
@@ -9,16 +9,6 @@ vi.mock('../../services/api/pets_service', () => ({
         getPetById: vi.fn(),
     },
 }));
-
-const renderWithRouter = (ui: React.ReactElement, initialEntries = ['/pets/1']) => {
-    return render(
-        <MemoryRouter initialEntries={initialEntries}>
-            <Routes>
-                <Route path="/pets/:id" element={ui} />
-            </Routes>
-        </MemoryRouter>
-    );
-};
 
 describe('PetDetails', () => {
     beforeEach(() => {
@@ -50,7 +40,12 @@ describe('PetDetails', () => {
 
         vi.mocked(petsService.getPetById).mockResolvedValue(mockPet as any);
 
-        renderWithRouter(<PetDetails />);
+        window.history.pushState({}, '', '/pets/1');
+        render(
+            <Routes>
+                <Route path="/pets/:id" element={<PetDetails />} />
+            </Routes>
+        );
 
         await waitFor(() => {
             expect(screen.getByText('Rex')).toBeDefined();
@@ -68,7 +63,12 @@ describe('PetDetails', () => {
     it('deve exibir mensagem de erro quando a API falha', async () => {
         vi.mocked(petsService.getPetById).mockRejectedValue(new Error('Erro ao carregar detalhes'));
 
-        renderWithRouter(<PetDetails />);
+        window.history.pushState({}, '', '/pets/1');
+        render(
+            <Routes>
+                <Route path="/pets/:id" element={<PetDetails />} />
+            </Routes>
+        );
 
         await waitFor(() => {
             expect(screen.getByText('Erro ao carregar detalhes')).toBeDefined();
@@ -78,7 +78,12 @@ describe('PetDetails', () => {
     it('deve mostrar mensagem de pet não encontrado', async () => {
         vi.mocked(petsService.getPetById).mockResolvedValue(null as any);
 
-        renderWithRouter(<PetDetails />);
+        window.history.pushState({}, '', '/pets/1');
+        render(
+            <Routes>
+                <Route path="/pets/:id" element={<PetDetails />} />
+            </Routes>
+        );
 
         await waitFor(() => {
             expect(screen.getByText('Pet não encontrado')).toBeDefined();

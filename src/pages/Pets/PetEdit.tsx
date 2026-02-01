@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Dog, Save } from 'lucide-react';
-import { usePetStore } from '../../hooks/usePetStore';
+import { usePet, useUpdatePet } from '../../hooks/queries/usePet';
 import { petsService } from '../../services/api/pets_service'; // Still used for photo delete
 import { PhotoUpload } from '../../components/Common/PhotoUpload';
 
 export default function PetEdit() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { loadPetDetails, selectedPet, updatePet, loadingDetails, loading, error, clearError, clearSelectedPet } = usePetStore();
+
+    const numericId = id ? Number(id) : undefined;
+    const { data: selectedPet, isLoading: loadingDetails, error: loadError } = usePet(numericId);
+    const { mutateAsync: updatePet, isPending: isUpdating, error: updateError } = useUpdatePet();
 
     // Form state
     const [formData, setFormData] = useState<{
@@ -24,18 +27,7 @@ export default function PetEdit() {
     });
 
     useEffect(() => {
-        if (id) {
-            loadPetDetails(id);
-        }
-        return () => {
-            clearSelectedPet();
-            clearError();
-        };
-    }, [id]);
-
-    // Populate form when selectedPet changes
-    useEffect(() => {
-        if (selectedPet && String(selectedPet.id) === id) {
+        if (selectedPet) {
             setFormData({
                 nome: selectedPet.nome,
                 raca: selectedPet.raca,
@@ -43,7 +35,7 @@ export default function PetEdit() {
                 foto: selectedPet.foto || null,
             });
         }
-    }, [selectedPet, id]);
+    }, [selectedPet]);
 
     const handlePhotoSelect = (file: File | null) => {
         setFormData(prev => ({ ...prev, foto: file }));
@@ -52,16 +44,13 @@ export default function PetEdit() {
     const handlePhotoDelete = async () => {
         if (!id) return;
 
-        // Check if we have a persisted photo with an ID
-        const photoId = (formData.foto as any)?.id;
+        const photoId = (selectedPet?.foto as any)?.id;
         if (!photoId) return;
 
         try {
             if (confirm('Tem certeza que deseja remover a foto deste pet?')) {
                 await petsService.deletePetPhoto(Number(id), photoId);
                 setFormData(prev => ({ ...prev, foto: null }));
-                // Optionally reload details
-                loadPetDetails(id);
             }
         } catch (err) {
             console.error('Error deleting photo:', err);
@@ -79,17 +68,20 @@ export default function PetEdit() {
         if (!id) return;
 
         try {
-            await updatePet(id, {
-                nome: formData.nome,
-                raca: formData.raca,
-                idade: Number(formData.idade),
-                foto: formData.foto instanceof File ? formData.foto : undefined
+            await updatePet({
+                id: Number(id),
+                data: {
+                    id: Number(id),
+                    nome: formData.nome,
+                    raca: formData.raca,
+                    idade: Number(formData.idade),
+                    foto: formData.foto instanceof File ? formData.foto : undefined
+                }
             });
 
             navigate('/pets');
         } catch (err: any) {
             console.error('Error updating pet:', err);
-            // Error handling is managed by store, displayed via error prop
         }
     };
 
@@ -107,7 +99,7 @@ export default function PetEdit() {
             <button
                 onClick={() => navigate('/pets')}
                 className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                disabled={loading}
+                disabled={isUpdating}
             >
                 <ArrowLeft className="h-5 w-5 mr-2" />
                 Voltar
@@ -124,9 +116,9 @@ export default function PetEdit() {
                     </div>
                 </header>
 
-                {error && (
+                {(updateError || loadError) && (
                     <div role="alert" className="mb-6 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-lg">
-                        {error}
+                        {(updateError as any)?.message || (loadError as any)?.message || 'Erro ao processar solicitação'}
                     </div>
                 )}
 
@@ -152,7 +144,7 @@ export default function PetEdit() {
                                 value={formData.nome}
                                 onChange={handleChange}
                                 required
-                                disabled={loading}
+                                disabled={isUpdating}
                                 className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-50"
                             />
                         </div>
@@ -168,7 +160,7 @@ export default function PetEdit() {
                                 value={formData.raca}
                                 onChange={handleChange}
                                 required
-                                disabled={loading}
+                                disabled={isUpdating}
                                 className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-50"
                             />
                         </div>
@@ -185,7 +177,7 @@ export default function PetEdit() {
                                 onChange={handleChange}
                                 required
                                 min="0"
-                                disabled={loading}
+                                disabled={isUpdating}
                                 className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-50"
                             />
                         </div>
@@ -194,10 +186,10 @@ export default function PetEdit() {
                     <footer className="flex justify-center md:justify-end pt-6 border-t border-gray-100 dark:border-gray-800">
                         <button
                             type="submit"
-                            disabled={loading}
+                            disabled={isUpdating}
                             className="flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {loading ? (
+                            {isUpdating ? (
                                 <>
                                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                                     Salvando...

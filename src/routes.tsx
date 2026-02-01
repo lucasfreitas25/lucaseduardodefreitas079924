@@ -2,7 +2,6 @@ import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { MainLayout } from './components/Layout/MainLayout';
 
-// Lazy load pages
 const PetList = lazy(() => import('./pages/Pets/PetList'));
 const PetDetails = lazy(() => import('./pages/Pets/PetDetails'));
 const PetEdit = lazy(() => import('./pages/Pets/PetEdit'));

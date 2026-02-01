@@ -1,7 +1,7 @@
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '../../test/test-utils';
 import { petsService } from '../../services/api/pets_service';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import PetEdit from './PetEdit';
 
 vi.mock('../../services/api/pets_service', () => ({
@@ -12,16 +12,6 @@ vi.mock('../../services/api/pets_service', () => ({
         deletePetPhoto: vi.fn()
     },
 }));
-
-const renderWithRouter = (ui: React.ReactElement, initialEntries = ['/pets/1/edit']) => {
-    return render(
-        <MemoryRouter initialEntries={initialEntries}>
-            <Routes>
-                <Route path="/pets/:id/edit" element={ui} />
-            </Routes>
-        </MemoryRouter>
-    );
-};
 
 describe('PetEdit', () => {
     beforeEach(() => {
@@ -40,7 +30,12 @@ describe('PetEdit', () => {
         vi.mocked(petsService.getPetById).mockResolvedValue(mockPet as any);
         vi.mocked(petsService.updatePet).mockResolvedValue(undefined as any);
 
-        renderWithRouter(<PetEdit />);
+        window.history.pushState({}, '', '/pets/1/edit');
+        render(
+            <Routes>
+                <Route path="/pets/:id/edit" element={<PetEdit />} />
+            </Routes>
+        );
 
         await waitFor(() => {
             expect(screen.getByLabelText(/Nome do Pet/i)).toHaveValue('Rex');
@@ -65,7 +60,12 @@ describe('PetEdit', () => {
         // Mock URL.createObjectURL
         global.URL.createObjectURL = vi.fn(() => 'mock-url');
 
-        const { container } = renderWithRouter(<PetEdit />);
+        window.history.pushState({}, '', '/pets/1/edit');
+        const { container } = render(
+            <Routes>
+                <Route path="/pets/:id/edit" element={<PetEdit />} />
+            </Routes>
+        );
 
         await waitFor(() => {
             expect(screen.getByLabelText(/Nome do Pet/i)).toBeDefined();
@@ -74,6 +74,9 @@ describe('PetEdit', () => {
         const file = new File(['hello'], 'hello.png', { type: 'image/png' });
         const input = container.querySelector('input[type="file"]') as HTMLInputElement;
         fireEvent.change(input, { target: { files: [file] } });
+
+        // Espera o processamento da imagem (mesmo mocked, é async)
+        await screen.findByText(/Remover foto/i);
 
         fireEvent.click(screen.getByRole('button', { name: /Salvar Alterações/i }));
 
@@ -86,7 +89,12 @@ describe('PetEdit', () => {
     it('exibe erro se o carregamento do pet falhar', async () => {
         vi.mocked(petsService.getPetById).mockRejectedValue(new Error('Erro ao carregar'));
 
-        renderWithRouter(<PetEdit />);
+        window.history.pushState({}, '', '/pets/1/edit');
+        render(
+            <Routes>
+                <Route path="/pets/:id/edit" element={<PetEdit />} />
+            </Routes>
+        );
 
         await waitFor(() => {
             expect(screen.getByText('Erro ao carregar')).toBeDefined();

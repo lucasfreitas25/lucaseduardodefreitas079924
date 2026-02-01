@@ -1,9 +1,6 @@
 import axios from 'axios';
 import type { LoginCredentials, AuthResponse } from '../../types';
 
-// Using a separate axios instance or absolute URL for auth trying to avoid circular dependencies or base URL conflicts
-// But strictly speaking, if the auth endpoint is on the same server, we can use 'api' instance IF we are careful about interceptors.
-// However, the base URL for 'api' is /v1. Auth is at /autenticacao. So we need a different Base URL or absolute path.
 
 const AUTH_URL = 'https://pet-manager-api.geia.vip/autenticacao';
 

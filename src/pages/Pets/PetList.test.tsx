@@ -1,8 +1,7 @@
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '../../test/test-utils';
 import PetList from './PetList';
 import { petsService } from '../../services/api/pets_service';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { BrowserRouter } from 'react-router-dom';
 
 vi.mock('../../services/api/pets_service', () => ({
     petsService: {
@@ -10,10 +9,6 @@ vi.mock('../../services/api/pets_service', () => ({
         deletePet: vi.fn(),
     },
 }));
-
-const renderWithRouter = (ui: React.ReactElement) => {
-    return render(ui, { wrapper: BrowserRouter });
-};
 
 describe('PetList', () => {
     beforeEach(() => {
@@ -34,7 +29,7 @@ describe('PetList', () => {
             total_pages: 1,
         });
 
-        renderWithRouter(<PetList />);
+        render(<PetList />);
 
         await waitFor(() => {
             expect(screen.getByText('Rex')).toBeDefined();
@@ -51,7 +46,7 @@ describe('PetList', () => {
             total_pages: 0,
         });
 
-        renderWithRouter(<PetList />);
+        render(<PetList />);
 
         await waitFor(() => {
             expect(screen.getByText('Nenhum pet encontrado.')).toBeDefined();
@@ -67,7 +62,7 @@ describe('PetList', () => {
             total_pages: 0,
         });
 
-        renderWithRouter(<PetList />);
+        render(<PetList />);
 
         const searchInput = screen.getByPlaceholderText('Buscar por nome...');
         fireEvent.change(searchInput, { target: { value: 'Rex' } });
@@ -92,7 +87,7 @@ describe('PetList', () => {
 
         vi.spyOn(window, 'confirm').mockReturnValue(true);
 
-        renderWithRouter(<PetList />);
+        render(<PetList />);
 
         await waitFor(() => {
             expect(screen.getByText('Rex')).toBeDefined();
@@ -101,6 +96,8 @@ describe('PetList', () => {
         const deleteButton = screen.getByTitle('Deletar Pet');
         fireEvent.click(deleteButton);
 
-        expect(petsService.deletePet).toHaveBeenCalledWith(1);
+        await waitFor(() => {
+            expect(petsService.deletePet).toHaveBeenCalledWith(1);
+        });
     });
 });

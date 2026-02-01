@@ -1,42 +1,34 @@
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { Search, Trash } from 'lucide-react';
-import { useTutorStore } from '../../hooks/useTutorStore';
+import { useTutors, useDeleteTutor } from '../../hooks/queries/useTutor';
 import { Card } from '../../components/UI/Card';
 import { Pagination } from '../../components/UI/Pagination';
 import { useNavigate } from 'react-router-dom';
+import { useDebounce } from '../../hooks/useDebounce';
 
 export default function TutorList() {
-    const {
-        tutors,
-        loading,
-        error,
-        currentPage,
-        totalPages,
-        searchTerm,
-        loadTutors,
-        searchTutors,
-        deleteTutor
-    } = useTutorStore();
+    const [page, setPage] = useState(1);
+    const [searchTerm, setSearchTerm] = useState('');
+    const debouncedSearch = useDebounce(searchTerm, 500);
+
+    const { data, isLoading, error, refetch } = useTutors(page, debouncedSearch);
+    const { mutateAsync: deleteTutor } = useDeleteTutor();
 
     const navigate = useNavigate();
 
-    // Initial load
-    useEffect(() => {
-        loadTutors(0, 10);
-    }, []);
-
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        searchTutors(e.target.value);
+        setSearchTerm(e.target.value);
+        setPage(1);
     };
 
     const handlePageChange = (newPage: number) => {
-        loadTutors(newPage - 1, 10);
+        setPage(newPage);
     };
 
     const handleDelete = async (id: number) => {
         if (!confirm('Tem certeza que deseja excluir este tutor?')) return;
         try {
-            await deleteTutor(String(id));
+            await deleteTutor(id);
         } catch (err) {
             console.error('Error deleting tutor:', err);
             alert('Erro ao excluir tutor.');
@@ -82,19 +74,19 @@ export default function TutorList() {
                 />
             </section>
 
-            {error && (
+            {error ? (
                 <div role="alert" className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-lg text-center">
-                    <p>{error}</p>
+                    <p>Erro ao carregar tutores.</p>
                     <button
-                        onClick={() => loadTutors(currentPage, 10)}
+                        onClick={() => refetch()}
                         className="mt-2 text-sm font-medium underline hover:text-red-700 dark:hover:text-red-300"
                     >
                         Tentar novamente
                     </button>
                 </div>
-            )}
+            ) : null}
 
-            {loading && tutors.length === 0 ? (
+            {isLoading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {[...Array(8)].map((_, i) => (
                         <div key={i} className="bg-white dark:bg-[#1a1a1a] h-80 rounded-xl shadow-sm animate-pulse" />
@@ -102,9 +94,9 @@ export default function TutorList() {
                 </div>
             ) : (
                 <>
-                    {tutors.length > 0 ? (
+                    {data?.items && data.items.length > 0 ? (
                         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {tutors.map((tutor) => (
+                            {data.items.map((tutor) => (
                                 <article key={tutor.id} className="relative group">
                                     <Card
                                         title={tutor.name}
@@ -144,11 +136,13 @@ export default function TutorList() {
                         </div>
                     )}
 
-                    <Pagination
-                        currentPage={currentPage + 1}
-                        totalPages={totalPages}
-                        onPageChange={handlePageChange}
-                    />
+                    {data && (
+                        <Pagination
+                            currentPage={page}
+                            totalPages={data.total_pages}
+                            onPageChange={handlePageChange}
+                        />
+                    )}
                 </>
             )}
         </main>

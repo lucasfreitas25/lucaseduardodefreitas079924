@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Dog, Save } from 'lucide-react';
-import { useTutorStore } from '../../hooks/useTutorStore';
+import { useCreateTutor } from '../../hooks/queries/useTutor';
+import { usePets } from '../../hooks/queries/usePet';
 import { PhotoUpload } from '../../components/Common/PhotoUpload';
 import { validarEmail, validarCpf } from '../../utils/validators';
 import { formatCPF, formatTelefone } from '../../utils/formatters';
 
 export default function TutorAdd() {
     const navigate = useNavigate();
-    const { createTutor, loading, error: storeError, clearError } = useTutorStore(); // Destructure properly
+    const { mutateAsync: createTutor, isPending: loading, error: mutationError } = useCreateTutor();
     const [validationError, setValidationError] = useState<string | null>(null);
-    // Wait, useTutorStore has createTutor. I'll use it.
+    const { data: petsData } = usePets(1, '');
 
     const [formData, setFormData] = useState<{
         nome: string;
@@ -19,6 +20,7 @@ export default function TutorAdd() {
         telefone: string;
         endereco: string,
         foto: File | null;
+        petId: string;
     }>({
         nome: '',
         email: '',
@@ -26,9 +28,10 @@ export default function TutorAdd() {
         telefone: '',
         endereco: '',
         foto: null,
+        petId: '',
     });
 
-    const error = validationError || storeError;
+    const error = validationError || (mutationError as any)?.message;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -49,7 +52,6 @@ export default function TutorAdd() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        clearError();
         setValidationError(null);
 
         try {
@@ -77,13 +79,13 @@ export default function TutorAdd() {
                 cpf: cleanCPF,
                 telefone: cleanTelefone,
                 endereco: formData.endereco,
-                foto: formData.foto || undefined
+                foto: (formData.foto as any) || undefined,
+                petId: formData.petId || undefined
             });
 
             navigate('/tutors');
         } catch (err: any) {
             console.error('Error creating tutor:', err);
-            // Error is handled by store and exposed via 'error' prop
         }
     };
 
@@ -124,7 +126,7 @@ export default function TutorAdd() {
                     </div>
 
                     <fieldset className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="">
+                        <div className="md:col-span-2">
                             <label htmlFor="nome" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Nome do Tutor *
                             </label>
@@ -195,7 +197,7 @@ export default function TutorAdd() {
                             />
                         </div>
 
-                        <div className="">
+                        <div>
                             <label htmlFor="endereco" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Endereço *
                             </label>
@@ -211,6 +213,30 @@ export default function TutorAdd() {
                                 className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-50"
                                 placeholder="Rua Exemplo, 123"
                             />
+                        </div>
+
+                        <div className="md:col-span-2">
+                            <label htmlFor="petId" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Vincular um Pet (opcional)
+                            </label>
+                            <select
+                                id="petId"
+                                name="petId"
+                                value={formData.petId}
+                                onChange={handleChange}
+                                disabled={loading}
+                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-50"
+                            >
+                                <option value="">Selecione um pet...</option>
+                                {petsData?.items.map((pet) => (
+                                    <option key={pet.id} value={pet.id}>
+                                        {pet.name} ({pet.breed})
+                                    </option>
+                                ))}
+                            </select>
+                            <p className="mt-1 text-xs text-gray-500">
+                                Dica: Você pode vincular mais pets depois na tela de edição do tutor.
+                            </p>
                         </div>
                     </fieldset>
 

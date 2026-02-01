@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Dog, Save } from 'lucide-react';
-import { usePetStore } from '../../hooks/usePetStore';
+import { useCreatePet } from '../../hooks/queries/usePet';
 import { PhotoUpload } from '../../components/Common/PhotoUpload';
 
 export default function PetAdd() {
     const navigate = useNavigate();
-    const { createPet, loading, error, clearError } = usePetStore();
+    const { mutateAsync: createPet, isPending: loading, error: mutationError } = useCreatePet();
+    const [validationError, setValidationError] = useState<string | null>(null);
 
     const [formData, setFormData] = useState<{
         nome: string;
@@ -33,7 +34,7 @@ export default function PetAdd() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        clearError(); // Clear previous errors
+        setValidationError(null);
 
         try {
             if (!formData.nome || !formData.raca || !formData.idade) {
@@ -45,8 +46,8 @@ export default function PetAdd() {
                 nome: formData.nome,
                 raca: formData.raca,
                 idade: Number(formData.idade),
-                foto: formData.foto || undefined
-            });
+                foto: (formData.foto as any) || undefined
+            } as any);
 
             navigate('/pets');
         } catch (err: any) {
@@ -76,9 +77,9 @@ export default function PetAdd() {
                     </div>
                 </header>
 
-                {error && (
+                {(mutationError || validationError) && (
                     <div role="alert" className="mb-6 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-lg">
-                        {error}
+                        {validationError || (mutationError as any)?.message || 'Erro ao criar pet'}
                     </div>
                 )}
 

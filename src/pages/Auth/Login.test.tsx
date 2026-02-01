@@ -1,8 +1,7 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '../../test/test-utils';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Login from './Login';
 import { authService } from '../../services/api/auth_service';
-import { MemoryRouter } from 'react-router-dom';
 import { AuthProvider } from '../../contexts/AuthContext';
 
 // Mock do authService
@@ -34,9 +33,7 @@ describe('Login Component', () => {
     it('deve renderizar o formulário de login corretamente', () => {
         render(
             <AuthProvider>
-                <MemoryRouter>
-                    <Login />
-                </MemoryRouter>
+                <Login />
             </AuthProvider>
         );
 
@@ -48,9 +45,7 @@ describe('Login Component', () => {
     it('deve chamar o serviço de login com as credenciais corretas', async () => {
         render(
             <AuthProvider>
-                <MemoryRouter>
-                    <Login />
-                </MemoryRouter>
+                <Login />
             </AuthProvider>
         );
 
@@ -68,9 +63,7 @@ describe('Login Component', () => {
 
         render(
             <AuthProvider>
-                <MemoryRouter>
-                    <Login />
-                </MemoryRouter>
+                <Login />
             </AuthProvider>
         );
 
@@ -89,9 +82,7 @@ describe('Login Component', () => {
 
         render(
             <AuthProvider>
-                <MemoryRouter>
-                    <Login />
-                </MemoryRouter>
+                <Login />
             </AuthProvider>
         );
 
@@ -110,9 +101,7 @@ describe('Login Component', () => {
 
         render(
             <AuthProvider>
-                <MemoryRouter>
-                    <Login />
-                </MemoryRouter>
+                <Login />
             </AuthProvider>
         );
 

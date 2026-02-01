@@ -1,23 +1,15 @@
-import { useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar } from 'lucide-react';
-import { usePetStore } from '../../hooks/usePetStore';
+import { usePet } from '../../hooks/queries/usePet';
 
 export default function PetDetails() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { selectedPet, loadingDetails, error, loadPetDetails, clearSelectedPet } = usePetStore();
 
-    useEffect(() => {
-        if (id) {
-            loadPetDetails(id);
-        }
-        return () => {
-            clearSelectedPet();
-        };
-    }, [id]);
+    const numericId = id ? Number(id) : undefined;
+    const { data: selectedPet, isLoading, error } = usePet(numericId);
 
-    if (loadingDetails) {
+    if (isLoading) {
         return (
             <section className="flex justify-center items-center min-h-[50vh]">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -28,7 +20,7 @@ export default function PetDetails() {
     if (error || !selectedPet) {
         return (
             <section className="text-center py-12">
-                <p className="text-red-600 dark:text-red-400 mb-4">{error || 'Pet não encontrado'}</p>
+                <p className="text-red-600 dark:text-red-400 mb-4">{error ? 'Erro ao carregar detalhes' : 'Pet não encontrado'}</p>
                 <Link to="/pets" className="text-blue-600 hover:text-blue-700 font-medium flex items-center justify-center gap-2">
                     <ArrowLeft className="h-4 w-4" />
                     Voltar para lista

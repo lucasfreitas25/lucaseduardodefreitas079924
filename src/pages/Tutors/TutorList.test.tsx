@@ -1,8 +1,7 @@
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '../../test/test-utils';
 import TutorList from './TutorList';
 import { TutorService } from '../../services/api/tutors_service';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { BrowserRouter } from 'react-router-dom';
 
 vi.mock('../../services/api/tutors_service', () => ({
     TutorService: {
@@ -10,10 +9,6 @@ vi.mock('../../services/api/tutors_service', () => ({
         deleteTutor: vi.fn(),
     },
 }));
-
-const renderWithRouter = (ui: React.ReactElement) => {
-    return render(ui, { wrapper: BrowserRouter });
-};
 
 import { tutorStore } from '../../store/UseTutorStore';
 
@@ -37,7 +32,7 @@ describe('TutorList', () => {
             total_pages: 1,
         });
 
-        renderWithRouter(<TutorList />);
+        render(<TutorList />);
 
         await waitFor(() => {
             expect(screen.getByText('João Silva')).toBeDefined();
@@ -54,7 +49,7 @@ describe('TutorList', () => {
             total_pages: 0,
         });
 
-        renderWithRouter(<TutorList />);
+        render(<TutorList />);
 
         await waitFor(() => {
             expect(screen.getByText('Nenhum tutor encontrado.')).toBeDefined();
@@ -70,7 +65,7 @@ describe('TutorList', () => {
             total_pages: 0,
         });
 
-        renderWithRouter(<TutorList />);
+        render(<TutorList />);
 
         const searchInput = screen.getByPlaceholderText('Buscar por nome...');
         fireEvent.change(searchInput, { target: { value: 'João' } });
@@ -96,7 +91,7 @@ describe('TutorList', () => {
 
         vi.spyOn(window, 'confirm').mockReturnValue(true);
 
-        renderWithRouter(<TutorList />);
+        render(<TutorList />);
 
         await waitFor(() => {
             expect(screen.getByText('João Silva')).toBeDefined();

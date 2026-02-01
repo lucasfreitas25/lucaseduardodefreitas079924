@@ -1,42 +1,34 @@
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { Search, Trash } from 'lucide-react';
-import { usePetStore } from '../../hooks/usePetStore';
+import { usePets, useDeletePet } from '../../hooks/queries/usePet';
 import { Card } from '../../components/UI/Card';
 import { Pagination } from '../../components/UI/Pagination';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDebounce } from '../../hooks/useDebounce';
 
 export default function PetList() {
-    const {
-        pets,
-        loading,
-        error,
-        currentPage,
-        totalPages,
-        searchTerm,
-        loadPets,
-        searchPets,
-        deletePet
-    } = usePetStore();
+    const [page, setPage] = useState(1);
+    const [searchTerm, setSearchTerm] = useState('');
+    const debouncedSearch = useDebounce(searchTerm, 500);
+
+    const { data, isLoading, error, refetch } = usePets(page, debouncedSearch);
+    const { mutateAsync: deletePet } = useDeletePet();
 
     const navigate = useNavigate();
-    // Initial load
-    useEffect(() => {
-        loadPets(0, 10);
-    }, []);
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        searchPets(e.target.value);
+        setSearchTerm(e.target.value);
+        setPage(1); // Reset to first page on search
     };
 
     const handlePageChange = (newPage: number) => {
-        loadPets(newPage - 1, 10);
+        setPage(newPage);
     };
 
     const handleDelete = async (id: number) => {
         if (!confirm('Tem certeza que deseja excluir este pet?')) return;
         try {
-            // Convert to string for store
-            await deletePet(String(id));
+            await deletePet(id);
         } catch (err) {
             console.error('Error deleting pet:', err);
             alert('Erro ao excluir pet.');
@@ -82,19 +74,19 @@ export default function PetList() {
                 />
             </section>
 
-            {error && (
+            {error ? (
                 <section className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-lg text-center">
-                    <p>{error}</p>
+                    <p>Erro ao carregar pets.</p>
                     <button
-                        onClick={() => loadPets(currentPage, 10)}
+                        onClick={() => refetch()}
                         className="mt-2 text-sm font-medium underline hover:text-red-700 dark:hover:text-red-300"
                     >
                         Tentar novamente
                     </button>
                 </section>
-            )}
+            ) : null}
 
-            {loading && pets.length === 0 ? (
+            {isLoading ? (
                 <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {[...Array(8)].map((_, i) => (
                         <div key={i} className="bg-white dark:bg-[#1a1a1a] h-80 rounded-xl shadow-sm animate-pulse" />
@@ -102,9 +94,9 @@ export default function PetList() {
                 </section>
             ) : (
                 <>
-                    {pets.length > 0 ? (
+                    {data?.items && data.items.length > 0 ? (
                         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {pets.map((pet) => (
+                            {data.items.map((pet) => (
                                 <article key={pet.id} className="relative group">
                                     <Link to={`/pets/${pet.id}`}>
                                         <Card
@@ -146,11 +138,13 @@ export default function PetList() {
                         </section>
                     )}
 
-                    <Pagination
-                        currentPage={currentPage + 1}
-                        totalPages={totalPages}
-                        onPageChange={handlePageChange}
-                    />
+                    {data && (
+                        <Pagination
+                            currentPage={page}
+                            totalPages={data.total_pages}
+                            onPageChange={handlePageChange}
+                        />
+                    )}
                 </>
             )}
         </section>

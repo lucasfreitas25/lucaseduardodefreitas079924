@@ -1,19 +1,22 @@
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '../../test/test-utils';
 import { TutorService } from '../../services/api/tutors_service';
+import { petsService } from '../../services/api/pets_service';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { MemoryRouter } from 'react-router-dom';
 import TutorAdd from './TutorAdd';
 
 vi.mock('../../services/api/tutors_service', () => ({
     TutorService: {
         createTutor: vi.fn(),
-        uploadTutorPhoto: vi.fn()
+        uploadTutorPhoto: vi.fn(),
+        addPet: vi.fn()
     },
 }));
 
-const renderWithRouter = (ui: React.ReactElement) => {
-    return render(ui, { wrapper: MemoryRouter });
-};
+vi.mock('../../services/api/pets_service', () => ({
+    petsService: {
+        getPets: vi.fn()
+    },
+}));
 
 const VALID_CPF = '529.982.247-25';
 
@@ -26,7 +29,7 @@ describe('TutorAdd', () => {
     });
 
     it('deve formatar CPF e Telefone enquanto o usuário digita', async () => {
-        renderWithRouter(<TutorAdd />);
+        render(<TutorAdd />);
 
         const cpfInput = screen.getByLabelText(/CPF/i) as HTMLInputElement;
         const telInput = screen.getByLabelText(/Telefone/i) as HTMLInputElement;
@@ -41,7 +44,7 @@ describe('TutorAdd', () => {
     it('deve criar um tutor ao preencher o formulário corretamente', async () => {
         vi.mocked(TutorService.createTutor).mockResolvedValue({ id: 1, nome: 'João Silva' } as any);
 
-        const { container } = renderWithRouter(<TutorAdd />);
+        const { container } = render(<TutorAdd />);
 
         fireEvent.change(screen.getByLabelText(/Nome do Tutor/i), { target: { value: 'João Silva' } });
         fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'joao@example.com' } });
@@ -59,9 +62,7 @@ describe('TutorAdd', () => {
 
     it('deve fazer upload da foto se uma foto for selecionada', async () => {
         vi.mocked(TutorService.createTutor).mockResolvedValue({ id: 1, nome: 'João Silva' } as any);
-        global.URL.createObjectURL = vi.fn(() => 'mock-url');
-
-        const { container } = renderWithRouter(<TutorAdd />);
+        const { container } = render(<TutorAdd />);
 
         fireEvent.change(screen.getByLabelText(/Nome do Tutor/i), { target: { value: 'João Silva' } });
         fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'joao@example.com' } });
@@ -73,6 +74,9 @@ describe('TutorAdd', () => {
         const input = container.querySelector('input[type="file"]') as HTMLInputElement;
         fireEvent.change(input, { target: { files: [file] } });
 
+        // Espera o processamento da imagem (mesmo mocked, é async)
+        await screen.findByText(/Remover foto/i);
+
         const form = container.querySelector('form');
         fireEvent.submit(form!);
 
@@ -82,7 +86,7 @@ describe('TutorAdd', () => {
     });
 
     it('deve exibir erro para email inválido', async () => {
-        const { container } = renderWithRouter(<TutorAdd />);
+        const { container } = render(<TutorAdd />);
 
         fireEvent.change(screen.getByLabelText(/Nome do Tutor/i), { target: { value: 'João Silva' } });
         fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'email-invalido' } });
@@ -99,7 +103,7 @@ describe('TutorAdd', () => {
     });
 
     it('deve exibir erro para CPF inválido', async () => {
-        const { container } = renderWithRouter(<TutorAdd />);
+        const { container } = render(<TutorAdd />);
 
         fireEvent.change(screen.getByLabelText(/Nome do Tutor/i), { target: { value: 'João Silva' } });
         fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'joao@example.com' } });
@@ -113,6 +117,37 @@ describe('TutorAdd', () => {
 
         await waitFor(() => {
             expect(screen.getByText('CPF inválido.')).toBeInTheDocument();
+        });
+    });
+
+    it('deve vincular um pet ao tutor se um pet for selecionado', async () => {
+        vi.mocked(TutorService.createTutor).mockResolvedValue({ id: 1, nome: 'João Silva' } as any);
+        vi.mocked(petsService.getPets).mockResolvedValue({
+            items: [{ id: 10, name: 'Rex', breed: 'SRD', age: 3 }] as any,
+            total: 1,
+            page: 1,
+            per_page: 10,
+            total_pages: 1
+        });
+
+        render(<TutorAdd />);
+
+        fireEvent.change(screen.getByLabelText(/Nome do Tutor/i), { target: { value: 'João Silva' } });
+        fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'joao@example.com' } });
+        fireEvent.change(screen.getByLabelText(/CPF/i), { target: { value: VALID_CPF } });
+        fireEvent.change(screen.getByLabelText(/Telefone/i), { target: { value: '(11) 98888-8888' } });
+        fireEvent.change(screen.getByLabelText(/Endereço/i), { target: { value: 'Rua Exemplo, 123' } });
+
+        // Seleciona o pet no dropdown
+        await waitFor(() => {
+            expect(screen.getByText('Rex (SRD)')).toBeInTheDocument();
+        });
+        fireEvent.change(screen.getByLabelText(/Vincular um Pet/i), { target: { value: '10' } });
+
+        fireEvent.click(screen.getByRole('button', { name: /Salvar Tutor/i }));
+
+        await waitFor(() => {
+            expect(TutorService.addPet).toHaveBeenCalledWith(1, 10);
         });
     });
 });

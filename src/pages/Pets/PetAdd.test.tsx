@@ -1,7 +1,6 @@
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '../../test/test-utils';
 import { petsService } from '../../services/api/pets_service';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { BrowserRouter } from 'react-router-dom';
 import PetAdd from './PetAdd';
 
 vi.mock('../../services/api/pets_service', () => ({
@@ -10,10 +9,6 @@ vi.mock('../../services/api/pets_service', () => ({
         uploadPetPhoto: vi.fn()
     },
 }));
-
-const renderWithRouter = (ui: React.ReactElement) => {
-    return render(ui, { wrapper: BrowserRouter });
-};
 
 describe('PetAdd', () => {
     beforeEach(() => {
@@ -28,7 +23,7 @@ describe('PetAdd', () => {
             idade: 3,
         });
 
-        renderWithRouter(<PetAdd />);
+        render(<PetAdd />);
 
         fireEvent.change(screen.getByLabelText(/Nome do Pet/i), { target: { value: 'Rex' } });
         fireEvent.change(screen.getByLabelText(/Raça/i), { target: { value: 'SRD' } });
@@ -39,7 +34,6 @@ describe('PetAdd', () => {
 
         await waitFor(() => {
             expect(petsService.createPet).toHaveBeenCalledWith({
-                id: 0,
                 nome: 'Rex',
                 raca: 'SRD',
                 idade: 3
@@ -53,7 +47,7 @@ describe('PetAdd', () => {
 
         global.URL.createObjectURL = vi.fn(() => 'mock-url');
 
-        const { container } = renderWithRouter(<PetAdd />);
+        const { container } = render(<PetAdd />);
 
         fireEvent.change(screen.getByLabelText(/Nome do Pet/i), { target: { value: 'Rex' } });
         fireEvent.change(screen.getByLabelText(/Raça/i), { target: { value: 'SRD' } });
@@ -62,6 +56,9 @@ describe('PetAdd', () => {
         const file = new File(['hello'], 'hello.png', { type: 'image/png' });
         const input = container.querySelector('input[type="file"]') as HTMLInputElement;
         fireEvent.change(input, { target: { files: [file] } });
+
+        // Espera o processamento da imagem (mesmo mocked, é async)
+        await screen.findByText(/Remover foto/i);
 
         const saveButton = screen.getByRole('button', { name: /Salvar Pet/i });
         fireEvent.click(saveButton);
@@ -75,7 +72,7 @@ describe('PetAdd', () => {
     it('exibe erro se a criação do pet falhar', async () => {
         vi.mocked(petsService.createPet).mockRejectedValue(new Error('Erro na API'));
 
-        renderWithRouter(<PetAdd />);
+        render(<PetAdd />);
 
         fireEvent.change(screen.getByLabelText(/Nome do Pet/i), { target: { value: 'Rex' } });
         fireEvent.change(screen.getByLabelText(/Raça/i), { target: { value: 'SRD' } });

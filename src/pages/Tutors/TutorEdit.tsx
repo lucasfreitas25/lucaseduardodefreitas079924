@@ -1,32 +1,23 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Dog, Save, Plus, Trash2 } from 'lucide-react';
-import { useTutorStore } from '../../hooks/useTutorStore';
-import { petsService } from '../../services/api/pets_service';
-import { TutorService } from '../../services/api/tutors_service'; // Still used for photo delete logic if complicated?
-// Actually simpler to use service for photo delete OR add to facade/store. 
-// I'll stick to service for deletePhoto if I didn't add it to store actions for specific photos, 
-// OR I can use the same logic as PetEdit which used service for photo delete.
+import { useTutor, useUpdateTutor, useAddPet, useRemovePet } from '../../hooks/queries/useTutor';
+import { usePets } from '../../hooks/queries/usePet';
+import { TutorService } from '../../services/api/tutors_service';
 import { PhotoUpload } from '../../components/Common/PhotoUpload';
 import { formatCPF, formatTelefone } from '../../utils/formatters';
-import type { PetDTO } from '../../types/dtos';
 
 export default function TutorEdit() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const numericId = id ? Number(id) : undefined;
 
-    const {
-        selectedTutor,
-        loading,
-        loadingDetails,
-        error,
-        loadTutorDetails,
-        updateTutor,
-        linkPet,
-        unlinkPet,
-        clearError,
-        clearSelectedTutor
-    } = useTutorStore();
+    const { data: selectedTutor, isLoading: loadingDetails, error: loadError } = useTutor(numericId);
+    const { mutateAsync: updateTutor, isPending: isUpdating, error: updateError } = useUpdateTutor();
+    const { mutateAsync: addPet, isPending: isAdding } = useAddPet();
+    const { mutateAsync: removePet, isPending: isRemoving } = useRemovePet();
+
+    const { data: petsData } = usePets(1, '');
 
     const [formData, setFormData] = useState<{
         nome: string;
@@ -44,24 +35,10 @@ export default function TutorEdit() {
         foto: null,
     });
 
-    // Pet Linking State
-    const [availablePets, setAvailablePets] = useState<PetDTO[]>([]);
     const [selectedPetId, setSelectedPetId] = useState<string>('');
-    const [linkingPet, setLinkingPet] = useState(false);
 
     useEffect(() => {
-        if (id) {
-            loadTutorDetails(id);
-            fetchAvailablePets();
-        }
-        return () => {
-            clearSelectedTutor();
-            clearError();
-        };
-    }, [id]);
-
-    useEffect(() => {
-        if (selectedTutor && String(selectedTutor.id) === id) {
+        if (selectedTutor) {
             const cpfValue = selectedTutor.cpf ? String(selectedTutor.cpf) : '';
             const telefoneValue = selectedTutor.telefone ? String(selectedTutor.telefone) : '';
 
@@ -70,20 +47,11 @@ export default function TutorEdit() {
                 email: selectedTutor.email || '',
                 cpf: formatCPF(cpfValue),
                 telefone: formatTelefone(telefoneValue),
-                endereco: selectedTutor.endereco,
-                foto: selectedTutor.foto || null,
+                endereco: selectedTutor.endereco || '',
+                foto: selectedTutor.foto ? { url: selectedTutor.foto.url } : null,
             });
         }
-    }, [selectedTutor, id]);
-
-    const fetchAvailablePets = async () => {
-        try {
-            const response = await petsService.getPets({ limit: 100 });
-            setAvailablePets(response.items as unknown as PetDTO[]);
-        } catch (err) {
-            console.error("Error fetching pets for linking", err);
-        }
-    };
+    }, [selectedTutor]);
 
     const handlePhotoSelect = (file: File | null) => {
         setFormData(prev => ({ ...prev, foto: file }));
@@ -91,14 +59,13 @@ export default function TutorEdit() {
 
     const handlePhotoDelete = async () => {
         if (!id) return;
-        const photoId = (formData.foto as any)?.id;
+        const photoId = (selectedTutor?.foto as any)?.id;
         if (!photoId) return;
 
         try {
             if (confirm('Tem certeza que deseja remover a foto deste tutor?')) {
                 await TutorService.deleteTutorPhoto(Number(id), photoId);
                 setFormData(prev => ({ ...prev, foto: null }));
-                loadTutorDetails(id);
             }
         } catch (err) {
             console.error('Error deleting photo:', err);
@@ -127,13 +94,17 @@ export default function TutorEdit() {
             const cleanCPF = formData.cpf ? String(formData.cpf).replace(/\D/g, '') : '';
             const cleanTelefone = formData.telefone ? String(formData.telefone).replace(/\D/g, '') : '';
 
-            await updateTutor(id, {
-                nome: formData.nome,
-                email: formData.email,
-                cpf: cleanCPF,
-                telefone: cleanTelefone,
-                endereco: formData.endereco,
-                foto: formData.foto instanceof File ? formData.foto : undefined
+            await updateTutor({
+                id: Number(id),
+                data: {
+                    id: Number(id),
+                    nome: formData.nome,
+                    email: formData.email,
+                    cpf: cleanCPF,
+                    telefone: cleanTelefone,
+                    endereco: formData.endereco,
+                    foto: formData.foto instanceof File ? formData.foto : undefined
+                }
             });
 
             navigate('/tutors');
@@ -144,16 +115,13 @@ export default function TutorEdit() {
 
     const handleLinkPet = async () => {
         if (!id || !selectedPetId) return;
-        setLinkingPet(true);
+
         try {
-            await linkPet(id, selectedPetId);
+            await addPet({ tutorId: Number(id), petId: Number(selectedPetId) });
             setSelectedPetId('');
             alert('Pet vinculado com sucesso!');
         } catch (err) {
             console.error('Error linking pet:', err);
-            // Error handled in store/hook, but maybe show alert here too?
-        } finally {
-            setLinkingPet(false);
         }
     };
 
@@ -162,7 +130,7 @@ export default function TutorEdit() {
         if (!confirm('Desvincular este pet?')) return;
 
         try {
-            await unlinkPet(id, String(petId));
+            await removePet({ tutorId: Number(id), petId });
         } catch (err) {
             console.error('Error unlinking pet:', err);
         }
@@ -181,7 +149,7 @@ export default function TutorEdit() {
             <button
                 onClick={() => navigate('/tutors')}
                 className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                disabled={loading}
+                disabled={isUpdating}
             >
                 <ArrowLeft className="h-5 w-5 mr-2" />
                 Voltar
@@ -198,9 +166,9 @@ export default function TutorEdit() {
                     </div>
                 </header>
 
-                {error && (
+                {(updateError || loadError) && (
                     <div role="alert" className="mb-6 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-lg">
-                        {error}
+                        {(updateError as any)?.message || (loadError as any)?.message || 'Erro ao processar solicitação'}
                     </div>
                 )}
 
@@ -226,7 +194,7 @@ export default function TutorEdit() {
                                 value={formData.nome}
                                 onChange={handleChange}
                                 required
-                                disabled={loading}
+                                disabled={isUpdating}
                                 className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-50"
                             />
                         </div>
@@ -242,7 +210,7 @@ export default function TutorEdit() {
                                 value={formData.email}
                                 onChange={handleChange}
                                 required
-                                disabled={loading}
+                                disabled={isUpdating}
                                 className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-50"
                             />
                         </div>
@@ -259,7 +227,7 @@ export default function TutorEdit() {
                                 onChange={handleChange}
                                 required
                                 maxLength={14}
-                                disabled={loading}
+                                disabled={isUpdating}
                                 className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-50"
                             />
                         </div>
@@ -276,7 +244,7 @@ export default function TutorEdit() {
                                 onChange={handleChange}
                                 required
                                 maxLength={15}
-                                disabled={loading}
+                                disabled={isUpdating}
                                 className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-50"
                             />
                         </div>
@@ -292,7 +260,7 @@ export default function TutorEdit() {
                                 value={formData.endereco}
                                 onChange={handleChange}
                                 required
-                                disabled={loading}
+                                disabled={isUpdating}
                                 className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-50"
                             />
                         </div>
@@ -306,21 +274,21 @@ export default function TutorEdit() {
                                 className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                                 value={selectedPetId}
                                 onChange={(e) => setSelectedPetId(e.target.value)}
-                                disabled={loading}
+                                disabled={isUpdating || isAdding}
                             >
                                 <option value="">Selecione um Pet para vincular...</option>
-                                {availablePets.map((pet: any) => (
+                                {petsData?.items?.map((pet: any) => (
                                     <option key={pet.id} value={pet.id}>{pet.name} (ID: {pet.id})</option>
                                 ))}
                             </select>
                             <button
                                 type="button"
                                 onClick={handleLinkPet}
-                                disabled={!selectedPetId || linkingPet || loading}
+                                disabled={!selectedPetId || isAdding || isUpdating}
                                 className="flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50"
                             >
                                 <Plus className="h-4 w-4 mr-2" />
-                                Vincular
+                                {isAdding ? 'Vinculando...' : 'Vincular'}
                             </button>
                         </div>
 
@@ -344,7 +312,7 @@ export default function TutorEdit() {
                                         <button
                                             type="button"
                                             onClick={() => handleUnlinkPet(pet.id)}
-                                            disabled={loading}
+                                            disabled={isRemoving}
                                             className="text-red-600 hover:text-red-700 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors disabled:opacity-50"
                                             title="Desvincular Pet"
                                         >
@@ -361,10 +329,10 @@ export default function TutorEdit() {
                     <footer className="flex justify-center md:justify-end pt-6 border-t border-gray-100 dark:border-gray-800">
                         <button
                             type="submit"
-                            disabled={loading}
+                            disabled={isUpdating}
                             className="flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {loading ? (
+                            {isUpdating ? (
                                 <>
                                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                                     Salvando...
