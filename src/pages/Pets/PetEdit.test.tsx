@@ -89,7 +89,7 @@ describe('PetEdit', () => {
         renderWithRouter(<PetEdit />);
 
         await waitFor(() => {
-            expect(screen.getByText('Erro ao carregar dados do pet.')).toBeDefined();
+            expect(screen.getByText('Erro ao carregar')).toBeDefined();
         });
     });
 });

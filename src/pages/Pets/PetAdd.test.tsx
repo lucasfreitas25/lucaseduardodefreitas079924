@@ -39,6 +39,7 @@ describe('PetAdd', () => {
 
         await waitFor(() => {
             expect(petsService.createPet).toHaveBeenCalledWith({
+                id: 0,
                 nome: 'Rex',
                 raca: 'SRD',
                 idade: 3

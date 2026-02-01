@@ -17,9 +17,12 @@ const renderWithRouter = (ui: React.ReactElement) => {
 
 const VALID_CPF = '529.982.247-25';
 
+import { tutorStore } from '../../store/UseTutorStore';
+
 describe('TutorAdd', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        tutorStore.reset();
     });
 
     it('deve formatar CPF e Telefone enquanto o usuário digita', async () => {

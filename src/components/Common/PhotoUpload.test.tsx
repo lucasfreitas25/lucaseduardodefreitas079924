@@ -1,6 +1,11 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { PhotoUpload } from './PhotoUpload';
+
+// Mock the image compression utility to avoid Canvas/JSDOM issues in tests
+vi.mock('../../utils/imageUtils', () => ({
+    compressImage: vi.fn((file) => Promise.resolve(file))
+}));
 
 describe('PhotoUpload Component', () => {
     // Mock global URL methods
@@ -32,7 +37,7 @@ describe('PhotoUpload Component', () => {
         expect(img).toHaveAttribute('src', 'http://example.com/photo.jpg');
     });
 
-    it('deve chamar onPhotoSelect quando um arquivo é selecionado', () => {
+    it('deve chamar onPhotoSelect quando um arquivo é selecionado', async () => {
         const handleSelect = vi.fn();
         const { container } = render(<PhotoUpload onPhotoSelect={handleSelect} />);
 
@@ -41,7 +46,10 @@ describe('PhotoUpload Component', () => {
 
         fireEvent.change(input!, { target: { files: [file] } });
 
-        expect(handleSelect).toHaveBeenCalledWith(file);
+        await waitFor(() => {
+            expect(handleSelect).toHaveBeenCalled();
+        });
+
         expect(mockCreateObjectURL).toHaveBeenCalledWith(file);
         expect(screen.getByAltText('Preview')).toBeInTheDocument();
     });

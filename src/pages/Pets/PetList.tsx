@@ -1,70 +1,42 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { Search, Trash } from 'lucide-react';
-import { petsService } from '../../services/api/pets_service';
-import type { Pet } from '../../types';
+import { usePetStore } from '../../hooks/usePetStore';
 import { Card } from '../../components/UI/Card';
 import { Pagination } from '../../components/UI/Pagination';
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
-
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function PetList() {
-    const [pets, setPets] = useState<Pet[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
+    const {
+        pets,
+        loading,
+        error,
+        currentPage,
+        totalPages,
+        searchTerm,
+        loadPets,
+        searchPets,
+        deletePet
+    } = usePetStore();
+
     const navigate = useNavigate();
-    const isFirstLoad = useRef(true);
-
+    // Initial load
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedSearchTerm(searchTerm);
-        }, 300);
-
-        return () => clearTimeout(timer);
-    }, [searchTerm]);
-
-    useEffect(() => {
-        fetchPets();
-    }, [page, debouncedSearchTerm]);
-
-    const fetchPets = async () => {
-        // Only show loading skeleton on first load, not on searches
-        if (isFirstLoad.current) {
-            setLoading(true);
-            isFirstLoad.current = false;
-        }
-        setError(null);
-        try {
-
-            const response = await petsService.getPets({
-                name: debouncedSearchTerm,
-                page,
-                limit: 10
-            });
-            setPets(response.items);
-            setTotalPages(response.total_pages || Math.ceil(response.total / response.per_page) || 1);
-        } catch (error: any) {
-            console.error('Error fetching pets:', error);
-            setError(error.message || 'Erro ao carregar pets. Tente novamente.');
-        } finally {
-            setLoading(false);
-        }
-    };
+        loadPets(0, 10);
+    }, []);
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(e.target.value);
-        setPage(1);
+        searchPets(e.target.value);
+    };
+
+    const handlePageChange = (newPage: number) => {
+        loadPets(newPage - 1, 10);
     };
 
     const handleDelete = async (id: number) => {
         if (!confirm('Tem certeza que deseja excluir este pet?')) return;
         try {
-            await petsService.deletePet(id);
-            setPets(prev => prev.filter(t => t.id !== id));
+            // Convert to string for store
+            await deletePet(String(id));
         } catch (err) {
             console.error('Error deleting pet:', err);
             alert('Erro ao excluir pet.');
@@ -114,7 +86,7 @@ export default function PetList() {
                 <section className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-lg text-center">
                     <p>{error}</p>
                     <button
-                        onClick={fetchPets}
+                        onClick={() => loadPets(currentPage, 10)}
                         className="mt-2 text-sm font-medium underline hover:text-red-700 dark:hover:text-red-300"
                     >
                         Tentar novamente
@@ -122,7 +94,7 @@ export default function PetList() {
                 </section>
             )}
 
-            {loading ? (
+            {loading && pets.length === 0 ? (
                 <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {[...Array(8)].map((_, i) => (
                         <div key={i} className="bg-white dark:bg-[#1a1a1a] h-80 rounded-xl shadow-sm animate-pulse" />
@@ -175,9 +147,9 @@ export default function PetList() {
                     )}
 
                     <Pagination
-                        currentPage={page}
+                        currentPage={currentPage + 1}
                         totalPages={totalPages}
-                        onPageChange={setPage}
+                        onPageChange={handlePageChange}
                     />
                 </>
             )}

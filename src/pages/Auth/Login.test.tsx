@@ -3,11 +3,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Login from './Login';
 import { authService } from '../../services/api/auth_service';
 import { MemoryRouter } from 'react-router-dom';
+import { AuthProvider } from '../../contexts/AuthContext';
 
 // Mock do authService
 vi.mock('../../services/api/auth_service', () => ({
     authService: {
         login: vi.fn(),
+        getToken: vi.fn(),
+        refreshToken: vi.fn(),
+        logout: vi.fn(),
     },
 }));
 
@@ -24,13 +28,16 @@ vi.mock('react-router-dom', async () => {
 describe('Login Component', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        vi.mocked(authService.getToken).mockReturnValue(null);
     });
 
     it('deve renderizar o formulário de login corretamente', () => {
         render(
-            <MemoryRouter>
-                <Login />
-            </MemoryRouter>
+            <AuthProvider>
+                <MemoryRouter>
+                    <Login />
+                </MemoryRouter>
+            </AuthProvider>
         );
 
         expect(screen.getByLabelText(/usuário/i)).toBeInTheDocument();
@@ -40,9 +47,11 @@ describe('Login Component', () => {
 
     it('deve chamar o serviço de login com as credenciais corretas', async () => {
         render(
-            <MemoryRouter>
-                <Login />
-            </MemoryRouter>
+            <AuthProvider>
+                <MemoryRouter>
+                    <Login />
+                </MemoryRouter>
+            </AuthProvider>
         );
 
         fireEvent.change(screen.getByLabelText(/usuário/i), { target: { value: 'admin' } });
@@ -58,9 +67,11 @@ describe('Login Component', () => {
         vi.mocked(authService.login).mockResolvedValue({ token: 'fake-token' } as any);
 
         render(
-            <MemoryRouter>
-                <Login />
-            </MemoryRouter>
+            <AuthProvider>
+                <MemoryRouter>
+                    <Login />
+                </MemoryRouter>
+            </AuthProvider>
         );
 
         fireEvent.change(screen.getByLabelText(/usuário/i), { target: { value: 'admin' } });
@@ -68,7 +79,8 @@ describe('Login Component', () => {
         fireEvent.click(screen.getByRole('button', { name: /entrar/i }));
 
         await waitFor(() => {
-            expect(mockNavigate).toHaveBeenCalledWith('/pets');
+            // Updated to match the replace: true option if added in Login.tsx
+            expect(mockNavigate).toHaveBeenCalledWith('/pets', expect.any(Object));
         });
     });
 
@@ -76,9 +88,11 @@ describe('Login Component', () => {
         vi.mocked(authService.login).mockRejectedValue(new Error('Credenciais inválidas'));
 
         render(
-            <MemoryRouter>
-                <Login />
-            </MemoryRouter>
+            <AuthProvider>
+                <MemoryRouter>
+                    <Login />
+                </MemoryRouter>
+            </AuthProvider>
         );
 
         fireEvent.change(screen.getByLabelText(/usuário/i), { target: { value: 'admin' } });
@@ -95,9 +109,11 @@ describe('Login Component', () => {
         vi.mocked(authService.login).mockReturnValue(new Promise(() => { }));
 
         render(
-            <MemoryRouter>
-                <Login />
-            </MemoryRouter>
+            <AuthProvider>
+                <MemoryRouter>
+                    <Login />
+                </MemoryRouter>
+            </AuthProvider>
         );
 
         fireEvent.change(screen.getByLabelText(/usuário/i), { target: { value: 'admin' } });

@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Dog, Save } from 'lucide-react';
-import { petsService } from '../../services/api/pets_service';
+import { usePetStore } from '../../hooks/usePetStore';
 import { PhotoUpload } from '../../components/Common/PhotoUpload';
 
 export default function PetAdd() {
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const { createPet, loading, error, clearError } = usePetStore();
+
     const [formData, setFormData] = useState<{
         nome: string;
         raca: string;
@@ -33,36 +33,24 @@ export default function PetAdd() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
-        setError(null);
+        clearError(); // Clear previous errors
 
         try {
             if (!formData.nome || !formData.raca || !formData.idade) {
-                throw new Error('Por favor, preencha todos os campos obrigatórios.');
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
             }
 
-            const petData: any = {
+            await createPet({
                 nome: formData.nome,
                 raca: formData.raca,
                 idade: Number(formData.idade),
-            };
-
-
-            const newPet = await petsService.createPet(petData);
-            if (formData.foto && newPet.id) {
-                await petsService.uploadPetPhoto(newPet.id, formData.foto);
-            }
-            // 2. Upload Photo skipped as requested
-            // if (formData.foto && createdPet.id) {
-            //     await petsService.uploadPetPhoto(createdPet.id, formData.foto);
-            // }
+                foto: formData.foto || undefined
+            });
 
             navigate('/pets');
         } catch (err: any) {
             console.error('Error creating pet:', err);
-            setError(err.message || 'Erro ao criar pet. Tente novamente.');
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -71,6 +59,7 @@ export default function PetAdd() {
             <button
                 onClick={() => navigate('/pets')}
                 className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                disabled={loading}
             >
                 <ArrowLeft className="h-5 w-5 mr-2" />
                 Voltar
@@ -114,7 +103,8 @@ export default function PetAdd() {
                                 onChange={handleChange}
                                 required
                                 maxLength={50}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                disabled={loading}
+                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-50"
                                 placeholder="Ex: Rex"
                             />
                         </div>
@@ -131,7 +121,8 @@ export default function PetAdd() {
                                 onChange={handleChange}
                                 required
                                 maxLength={30}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                disabled={loading}
+                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-50"
                                 placeholder="Ex: Golden Retriever"
                             />
                         </div>
@@ -148,7 +139,8 @@ export default function PetAdd() {
                                 onChange={handleChange}
                                 required
                                 min="0"
-                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                disabled={loading}
+                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-50"
                                 placeholder="Ex: 3"
                             />
                         </div>

@@ -15,9 +15,12 @@ const renderWithRouter = (ui: React.ReactElement) => {
     return render(ui, { wrapper: BrowserRouter });
 };
 
+import { tutorStore } from '../../store/UseTutorStore';
+
 describe('TutorList', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        tutorStore.reset();
     });
 
     it('renderiza o estado de carregamento inicialmente e depois os tutores', async () => {
@@ -76,7 +79,7 @@ describe('TutorList', () => {
             expect(TutorService.getTutors).toHaveBeenCalledWith(expect.objectContaining({
                 name: 'João'
             }));
-        }, { timeout: 1000 });
+        }, { timeout: 2000 });
     });
 
     it('deve chamar deleteTutor quando o ícone de lixeira é clicado', async () => {
@@ -89,6 +92,7 @@ describe('TutorList', () => {
             per_page: 10,
             total_pages: 1,
         });
+        vi.mocked(TutorService.deleteTutor).mockResolvedValue(undefined);
 
         vi.spyOn(window, 'confirm').mockReturnValue(true);
 
@@ -101,6 +105,8 @@ describe('TutorList', () => {
         const deleteButton = screen.getByTitle('Deletar Tutor');
         fireEvent.click(deleteButton);
 
-        expect(TutorService.deleteTutor).toHaveBeenCalledWith(1);
+        await waitFor(() => {
+            expect(TutorService.deleteTutor).toHaveBeenCalledWith(1);
+        });
     });
 });

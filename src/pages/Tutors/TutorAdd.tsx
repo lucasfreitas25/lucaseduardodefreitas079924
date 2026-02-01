@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Dog, Save } from 'lucide-react';
-import { TutorService } from '../../services/api/tutors_service';
+import { useTutorStore } from '../../hooks/useTutorStore';
 import { PhotoUpload } from '../../components/Common/PhotoUpload';
 import { validarEmail, validarCpf } from '../../utils/validators';
 import { formatCPF, formatTelefone } from '../../utils/formatters';
 
 export default function TutorAdd() {
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const { createTutor, loading, error: storeError, clearError } = useTutorStore(); // Destructure properly
+    const [validationError, setValidationError] = useState<string | null>(null);
+    // Wait, useTutorStore has createTutor. I'll use it.
+
     const [formData, setFormData] = useState<{
         nome: string;
         email: string;
@@ -25,9 +27,11 @@ export default function TutorAdd() {
         endereco: '',
         foto: null,
     });
+
+    const error = validationError || storeError;
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-
         let formattedValue = value;
 
         if (name === 'cpf') {
@@ -45,47 +49,41 @@ export default function TutorAdd() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
-        setError(null);
+        clearError();
+        setValidationError(null);
 
         try {
             if (!formData.nome || !formData.telefone || !formData.endereco || !formData.email || !formData.cpf) {
-                throw new Error('Por favor, preencha todos os campos obrigatórios.');
+                setValidationError('Por favor, preencha todos os campos obrigatórios.');
+                return;
             }
 
             if (!validarEmail(formData.email)) {
-                throw new Error('Email inválido.');
+                setValidationError('Email inválido.');
+                return;
             }
 
             if (!validarCpf(formData.cpf)) {
-                throw new Error('CPF inválido.');
+                setValidationError('CPF inválido.');
+                return;
             }
 
-            // Remove formatting before sending to API
-            // Ensure they are strings first
             const cleanCPF = formData.cpf ? String(formData.cpf).replace(/\D/g, '') : '';
             const cleanTelefone = formData.telefone ? String(formData.telefone).replace(/\D/g, '') : '';
 
-            const tutorData: any = {
+            await createTutor({
                 nome: formData.nome,
                 email: formData.email,
                 cpf: cleanCPF,
                 telefone: cleanTelefone,
                 endereco: formData.endereco,
-            };
-
-            const newTutor = await TutorService.createTutor(tutorData);
-
-            if (formData.foto && newTutor.id) {
-                await TutorService.uploadTutorPhoto(newTutor.id, formData.foto);
-            }
+                foto: formData.foto || undefined
+            });
 
             navigate('/tutors');
         } catch (err: any) {
             console.error('Error creating tutor:', err);
-            setError(err.message || 'Erro ao criar tutor. Tente novamente.');
-        } finally {
-            setLoading(false);
+            // Error is handled by store and exposed via 'error' prop
         }
     };
 
@@ -94,6 +92,7 @@ export default function TutorAdd() {
             <button
                 onClick={() => navigate('/tutors')}
                 className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                disabled={loading}
             >
                 <ArrowLeft className="h-5 w-5 mr-2" />
                 Voltar
@@ -137,7 +136,8 @@ export default function TutorAdd() {
                                 onChange={handleChange}
                                 required
                                 maxLength={100}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                disabled={loading}
+                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-50"
                                 placeholder="Ex: João da Silva"
                             />
                         </div>
@@ -153,7 +153,8 @@ export default function TutorAdd() {
                                 value={formData.email}
                                 onChange={handleChange}
                                 required
-                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                disabled={loading}
+                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-50"
                                 placeholder="joao@example.com"
                             />
                         </div>
@@ -170,7 +171,8 @@ export default function TutorAdd() {
                                 onChange={handleChange}
                                 required
                                 maxLength={14}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                disabled={loading}
+                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-50"
                                 placeholder="000.000.000-00"
                             />
                         </div>
@@ -187,7 +189,8 @@ export default function TutorAdd() {
                                 onChange={handleChange}
                                 required
                                 maxLength={15}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                disabled={loading}
+                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-50"
                                 placeholder="(00) 00000-0000"
                             />
                         </div>
@@ -204,7 +207,8 @@ export default function TutorAdd() {
                                 onChange={handleChange}
                                 required
                                 maxLength={250}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                disabled={loading}
+                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-50"
                                 placeholder="Rua Exemplo, 123"
                             />
                         </div>

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Camera, Trash2, Upload } from 'lucide-react';
+import { compressImage } from '../../utils/imageUtils';
 
 interface PhotoUploadProps {
     onPhotoSelect: (file: File | null) => void;
@@ -11,6 +12,7 @@ interface PhotoUploadProps {
 
 export function PhotoUpload({ onPhotoSelect, currentPhotoUrl, label = 'Foto', className = '', onPhotoDelete }: PhotoUploadProps) {
     const [preview, setPreview] = useState<string | null>(currentPhotoUrl || null);
+    const [isCompressing, setIsCompressing] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Update preview when currentPhotoUrl changes (e.g. after data fetch)
@@ -20,12 +22,24 @@ export function PhotoUpload({ onPhotoSelect, currentPhotoUrl, label = 'Foto', cl
         }
     }, [currentPhotoUrl]);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            const objectUrl = URL.createObjectURL(file);
-            setPreview(objectUrl);
-            onPhotoSelect(file);
+            try {
+                setIsCompressing(true);
+                const objectUrl = URL.createObjectURL(file);
+                setPreview(objectUrl);
+
+                // Compress image before passing it up
+                const compressedFile = await compressImage(file);
+                onPhotoSelect(compressedFile);
+            } catch (error) {
+                console.error('Error compressing image:', error);
+                // Fallback to original file if compression fails
+                onPhotoSelect(file);
+            } finally {
+                setIsCompressing(false);
+            }
         }
     };
 
@@ -64,7 +78,11 @@ export function PhotoUpload({ onPhotoSelect, currentPhotoUrl, label = 'Foto', cl
                 )}
 
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Upload className="h-8 w-8 text-white" />
+                    {isCompressing ? (
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                    ) : (
+                        <Upload className="h-8 w-8 text-white" />
+                    )}
                 </div>
             </div>
 

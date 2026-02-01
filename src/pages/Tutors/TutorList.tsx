@@ -1,72 +1,46 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { Search, Trash } from 'lucide-react';
-import { TutorService } from '../../services/api/tutors_service';
-import type { Tutor } from '../../types';
+import { useTutorStore } from '../../hooks/useTutorStore';
 import { Card } from '../../components/UI/Card';
 import { Pagination } from '../../components/UI/Pagination';
 import { useNavigate } from 'react-router-dom';
 
 export default function TutorList() {
-    const [tutors, setTutors] = useState<Tutor[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
+    const {
+        tutors,
+        loading,
+        error,
+        currentPage,
+        totalPages,
+        searchTerm,
+        loadTutors,
+        searchTutors,
+        deleteTutor
+    } = useTutorStore();
+
     const navigate = useNavigate();
-    const isFirstLoad = useRef(true);
 
-    // Debounce search term
+    // Initial load
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedSearchTerm(searchTerm);
-        }, 300);
+        loadTutors(0, 10);
+    }, []);
 
-        return () => clearTimeout(timer);
-    }, [searchTerm]);
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        searchTutors(e.target.value);
+    };
 
-    useEffect(() => {
-        fetchTutors();
-    }, [page, debouncedSearchTerm]);
-
-    const fetchTutors = async () => {
-        // Only show loading skeleton on first load, not on searches
-        if (isFirstLoad.current) {
-            setLoading(true);
-            isFirstLoad.current = false;
-        }
-        setError(null);
-        try {
-            const response = await TutorService.getTutors({
-                name: debouncedSearchTerm,
-                page,
-                limit: 10
-            });
-            setTutors(response.items);
-            setTotalPages(response.total_pages || Math.ceil(response.total / response.per_page) || 1);
-        } catch (error: any) {
-            console.error('Error fetching Tutors:', error);
-            setError(error.message || 'Erro ao carregar Tutores. Tente novamente.');
-        } finally {
-            setLoading(false);
-        }
+    const handlePageChange = (newPage: number) => {
+        loadTutors(newPage - 1, 10);
     };
 
     const handleDelete = async (id: number) => {
         if (!confirm('Tem certeza que deseja excluir este tutor?')) return;
         try {
-            await TutorService.deleteTutor(id);
-            setTutors(prev => prev.filter(t => t.id !== id));
+            await deleteTutor(String(id));
         } catch (err) {
             console.error('Error deleting tutor:', err);
             alert('Erro ao excluir tutor.');
         }
-    };
-
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(e.target.value);
-        setPage(1);
     };
 
     return (
@@ -112,7 +86,7 @@ export default function TutorList() {
                 <div role="alert" className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-lg text-center">
                     <p>{error}</p>
                     <button
-                        onClick={fetchTutors}
+                        onClick={() => loadTutors(currentPage, 10)}
                         className="mt-2 text-sm font-medium underline hover:text-red-700 dark:hover:text-red-300"
                     >
                         Tentar novamente
@@ -120,7 +94,7 @@ export default function TutorList() {
                 </div>
             )}
 
-            {loading ? (
+            {loading && tutors.length === 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {[...Array(8)].map((_, i) => (
                         <div key={i} className="bg-white dark:bg-[#1a1a1a] h-80 rounded-xl shadow-sm animate-pulse" />
@@ -171,9 +145,9 @@ export default function TutorList() {
                     )}
 
                     <Pagination
-                        currentPage={page}
+                        currentPage={currentPage + 1}
                         totalPages={totalPages}
-                        onPageChange={setPage}
+                        onPageChange={handlePageChange}
                     />
                 </>
             )}

@@ -1,37 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar } from 'lucide-react';
-import { petsService } from '../../services/api/pets_service';
-import type { PetDetailsDTO } from '../../types/dtos';
+import { usePetStore } from '../../hooks/usePetStore';
 
 export default function PetDetails() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const [pet, setPet] = useState<PetDetailsDTO | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const { selectedPet, loadingDetails, error, loadPetDetails, clearSelectedPet } = usePetStore();
 
     useEffect(() => {
         if (id) {
-            fetchPetDetails(Number(id));
+            loadPetDetails(id);
         }
+        return () => {
+            clearSelectedPet();
+        };
     }, [id]);
 
-    const fetchPetDetails = async (petId: number) => {
-        setLoading(true);
-        setError(null);
-        try {
-            const data = await petsService.getPetById(petId);
-            setPet(data);
-        } catch (err: any) {
-            console.error('Error fetching pet details:', err);
-            setError(err.message || 'Erro ao carregar detalhes do pet.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    if (loading) {
+    if (loadingDetails) {
         return (
             <section className="flex justify-center items-center min-h-[50vh]">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -39,7 +25,7 @@ export default function PetDetails() {
         );
     }
 
-    if (error || !pet) {
+    if (error || !selectedPet) {
         return (
             <section className="text-center py-12">
                 <p className="text-red-600 dark:text-red-400 mb-4">{error || 'Pet não encontrado'}</p>
@@ -64,16 +50,16 @@ export default function PetDetails() {
             <article className="bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800">
                 <figure className="aspect-w-16 aspect-h-9 relative h-64 sm:h-96">
                     <img
-                        src={pet.foto?.url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=1000'}
-                        alt={pet.nome}
+                        src={selectedPet.foto?.url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=1000'}
+                        alt={selectedPet.nome}
                         className="w-full h-full object-cover"
                     />
                     <figcaption className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
                         <header className="p-8 text-white w-full">
                             <div className="flex justify-between items-end">
                                 <div>
-                                    <h1 className="text-4xl font-bold mb-2">{pet.nome}</h1>
-                                    <p className="text-xl opacity-90">{pet.raca}</p>
+                                    <h1 className="text-4xl font-bold mb-2">{selectedPet.nome}</h1>
+                                    <p className="text-xl opacity-90">{selectedPet.raca}</p>
                                 </div>
 
                             </div>
@@ -87,7 +73,7 @@ export default function PetDetails() {
                             <Calendar className="h-6 w-6" />
                             <div>
                                 <p className="text-xs opacity-70">Idade</p>
-                                <p className="font-semibold">{pet.idade} anos</p>
+                                <p className="font-semibold">{selectedPet.idade} anos</p>
                             </div>
                         </div>
 
@@ -97,15 +83,15 @@ export default function PetDetails() {
                         <section>
                             <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">Sobre</h2>
                             <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                                {pet.nome} é um {pet.raca} muito dócil e brincalhão. Está com {pet.idade} anos de idade e adora passear.
+                                {selectedPet.nome} é um {selectedPet.raca} muito dócil e brincalhão. Está com {selectedPet.idade} anos de idade e adora passear.
                             </p>
                         </section>
 
-                        {pet.tutores && pet.tutores.length > 0 && (
+                        {selectedPet.tutores && selectedPet.tutores.length > 0 && (
                             <section>
                                 <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Tutores Responsáveis</h2>
                                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {pet.tutores.map((tutor) => (
+                                    {selectedPet.tutores.map((tutor) => (
                                         <li key={tutor.id} className="flex items-start gap-4 p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 transition-colors bg-gray-50 dark:bg-gray-800/50">
                                             <figure className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0">
                                                 {tutor.foto ? (

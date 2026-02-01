@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../../services/api/auth_service';
+import { useAuth } from '../../contexts/AuthContext';
 import { Dog } from 'lucide-react';
 
 export default function Login() {
     const navigate = useNavigate();
+    const { login } = useAuth();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -16,8 +17,8 @@ export default function Login() {
         setLoading(true);
 
         try {
-            await authService.login({ username, password });
-            navigate('/pets');
+            await login({ username, password });
+            navigate('/pets', { replace: true });
         } catch (err) {
             console.error(err);
             setError('Falha no login. Verifique suas credenciais.');
