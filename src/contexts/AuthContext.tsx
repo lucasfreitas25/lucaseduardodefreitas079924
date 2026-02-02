@@ -30,23 +30,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
 
         try {
-            // Check expiry
+            // Verificar expiração
             const payload = JSON.parse(atob(token.split('.')[1]));
             const exp = payload.exp * 1000;
             const now = Date.now();
 
             if (now >= exp) {
-                // Token expired, try refresh
-                console.log("Token expired, attempting refresh on startup...");
+                // Token expirado, tentar refresh
+                console.log("Token expirado, tentando refresh...");
                 await authService.refreshToken();
                 setIsAuthenticated(true);
             } else {
-                // Token valid
+
                 setIsAuthenticated(true);
             }
         } catch (error) {
-            console.error("Auth check failed:", error);
-            // If refresh fails or token invalid, clear and force login
+            console.error("Erro na verificação de autenticação:", error);
             authService.logout();
             setIsAuthenticated(false);
         } finally {

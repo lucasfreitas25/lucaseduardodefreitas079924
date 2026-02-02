@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { Dog } from 'lucide-react';
+import { Dog, PawPrint } from 'lucide-react';
 
 export default function Login() {
     const navigate = useNavigate();
@@ -28,52 +28,68 @@ export default function Login() {
     };
 
     return (
-        <main className="min-h-screen bg-gray-50 dark:bg-[#242424] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-            <article className="max-w-md w-full space-y-8 bg-white dark:bg-[#1a1a1a] p-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800">
+        <main className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 paw-pattern relative overflow-hidden">
+            <div className="absolute top-10 left-10 opacity-10 dark:opacity-5 animate-float">
+                <PawPrint className="w-24 h-24 text-orange-600" />
+            </div>
+            <div className="absolute bottom-20 right-20 opacity-10 dark:opacity-5 animate-float" style={{ animationDelay: '1s' }}>
+                <PawPrint className="w-32 h-32 text-cyan-600" />
+            </div>
+            <div className="absolute top-1/3 right-10 opacity-10 dark:opacity-5 animate-float" style={{ animationDelay: '2s' }}>
+                <PawPrint className="w-20 h-20 text-purple-600" />
+            </div>
+
+            <article className="max-w-md w-full space-y-8 glass p-8 sm:p-10 rounded-2xl shadow-2xl border-2 border-orange-200 dark:border-orange-900 animate-fade-in relative z-10">
                 <header className="text-center">
-                    <div className="mx-auto h-12 w-12 bg-blue-600 rounded-lg flex items-center justify-center">
-                        <Dog className="h-8 w-8 text-white" />
+                    <div className="mx-auto h-16 w-16 bg-gradient-to-br from-orange-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg transform hover:scale-110 transition-transform duration-300 animate-wiggle">
+                        <Dog className="h-10 w-10 text-white" />
                     </div>
-                    <h2 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-gray-100">
+                    <h2 className="mt-6 text-4xl font-extrabold gradient-text">
                         Pet Manager
                     </h2>
-                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                    <p className="mt-3 text-base text-gray-600 dark:text-gray-300 flex items-center justify-center gap-2">
+                        <PawPrint className="w-4 h-4 text-orange-500" />
                         Faça login para acessar o sistema
+                        <PawPrint className="w-4 h-4 text-orange-500" />
                     </p>
                 </header>
 
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                     {error && (
-                        <div role="alert" className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-lg text-sm text-center">
+                        <div role="alert" className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 p-4 rounded-xl text-sm text-center border-2 border-red-300 dark:border-red-800 animate-fade-in">
                             {error}
                         </div>
                     )}
 
-                    <fieldset className="rounded-md shadow-sm -space-y-px">
-                        <div>
-                            <label htmlFor="username" className="sr-only">Usuário</label>
+                    <fieldset className="space-y-4">
+                        <div className="relative">
+                            <label htmlFor="username" className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                                Usuário
+                            </label>
                             <input
                                 id="username"
                                 name="username"
                                 type="text"
                                 autoComplete="username"
                                 required
-                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 text-gray-900 dark:text-gray-100 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm bg-white dark:bg-[#242424]"
-                                placeholder="Usuário (admin)"
+                                className="appearance-none relative block w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 placeholder-gray-400 text-gray-900 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm"
+                                placeholder="Digite seu usuário (admin)"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
                             />
                         </div>
-                        <div>
-                            <label htmlFor="password" className="sr-only">Senha</label>
+                        <div className="relative">
+                            <label htmlFor="password" className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                                Senha
+                            </label>
                             <input
                                 id="password"
                                 name="password"
                                 type="password"
                                 autoComplete="current-password"
                                 required
-                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 text-gray-900 dark:text-gray-100 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm bg-white dark:bg-[#242424]"
-                                placeholder="Senha"
+                                className="appearance-none relative block w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 placeholder-gray-400 text-gray-900 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm"
+                                placeholder="Digite sua senha"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                             />
@@ -84,10 +100,26 @@ export default function Login() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            className="group relative w-full flex justify-center items-center gap-2 py-3.5 px-4 border border-transparent text-base font-bold rounded-xl text-white bg-gradient-to-r from-orange-500 to-cyan-500 hover:from-orange-600 hover:to-cyan-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
                         >
-                            {loading ? 'Entrando...' : 'Entrar'}
+                            {loading ? (
+                                <>
+                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                    Entrando...
+                                </>
+                            ) : (
+                                <>
+                                    <PawPrint className="w-5 h-5" />
+                                    Entrar
+                                </>
+                            )}
                         </button>
+                    </div>
+
+                    <div className="text-center">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                            🐾 Credenciais padrão: <span className="font-semibold">admin</span>
+                        </p>
                     </div>
                 </form>
             </article>

@@ -8,251 +8,135 @@
 
 ## 🎯 Sobre o Projeto
 
-Sistema de gerenciamento de pets e tutores desenvolvido para o Estado de Mato Grosso, permitindo cadastro, edição, exclusão e visualização de dados através de uma API pública.
+O **Pet Manager** é um sistema moderno de gerenciamento de pets e tutores desenvolvido para o Estado de Mato Grosso. A aplicação permite o ciclo completo de gerenciamento (CRUD) de animais e seus respectivos responsáveis, integrando-se a uma API RESTful para persistência de dados.
+
+O projeto foi construído com foco em **performance**, **escalabilidade** e **experiência do usuário**, utilizando as tecnologias mais recentes do ecossistema React.
 
 ## 🚀 Tecnologias Utilizadas
 
-- **React 18** com TypeScript
-- **React Router v6** (lazy loading)
-- **Tailwind CSS** (estilização responsiva)
-- **Axios** (requisições HTTP)
-- **Context API** (gerenciamento de estado)
-- **Jest + React Testing Library** (testes)
-- **Docker** (containerização)
+- **React 19**: Versão mais recente do React para uma performance otimizada.
+- **TypeScript**: Tipagem estática para maior segurança e produtividade.
+- **TanStack Query v5 (React Query)**: Gerenciamento eficiente de requisições assíncronas, cache e sincronização de estado.
+- **Tailwind CSS 4**: Estilização moderna e ultra-rápida com variáveis CSS nativas.
+- **RxJS (BehaviorSubject)**: Gerenciamento de estado reativo para stores globais.
+- **React Router 7**: Roteamento avançado com suporte a Code Splitting e Lazy Loading.
+- **Lucide React**: Biblioteca de ícones moderna e leve.
+- **Vitest & React Testing Library**: Testes unitários modernos e integrados ao ecossistema Vite.
+- **Axios**: Cliente HTTP robusto com interceptores para gerenciamento de tokens.
 
-## 📁 Arquitetura do Projeto
+## 🏗️ Arquitetura e Padrões
+
+O projeto utiliza uma arquitetura baseada em camadas para garantir a separação de responsabilidades e facilitar a manutenção:
+
+- **Facade Pattern**: Implementado na pasta `services/` (ex: `PetFacade.ts`), centralizando a lógica de acesso aos dados e simplificando a interface para os componentes.
+- **Service Layer**: Camada de baixo nível para comunicação direta com a API utilizando Axios.
+- **Store Pattern (RxJS)**: Localizado em `src/store/`, utiliza `BehaviorSubject` para manter o estado da aplicação de forma reativa e eficiente, sem o boilerplate do Redux.
+- **Custom Hooks**: Abstração de lógica de UI e conexão com as stores (ex: `usePetStore.ts`).
+- **Design System**: Componentização granular e reutilizável com foco em acessibilidade e responsividade.
+
+### Estrutura de Pastas
 
 ```
-src/
-├── components/       # Componentes reutilizáveis
-├── pages/           # Páginas principais
-├── services/        # Camada de serviços (API)
-├── contexts/        # Gerenciamento de estado
-├── hooks/           # Custom hooks
-├── types/           # Tipos TypeScript
-└── utils/           # Funções utilitárias
+pet-manager/
+├── src/
+│   ├── components/    # Componentes UI reutilizáveis e Common
+│   ├── contexts/      # Contextos globais (Auth, Theme)
+│   ├── hooks/         # Hooks customizados e queries do TanStack
+│   ├── pages/         # Páginas da aplicação (Lazy Loaded)
+│   ├── services/      # Camada de Facades e API
+│   ├── store/         # Gerenciamento de estado com RxJS
+│   ├── types/         # Definições de tipos TypeScript
+│   └── utils/         # Formatadores, validadores e auxiliares
+├── public/            # Ativos estáticos
+└── tests/             # Configurações de testes
 ```
-
-### Padrões Arquiteturais
-
-- **Separation of Concerns**: Separação clara entre UI, lógica de negócio e serviços
-- **Service Layer Pattern**: Camada de abstração para API calls
-- **Component Composition**: Componentização granular e reutilizável
-- **Custom Hooks**: Lógica compartilhada e reutilizável
 
 ## 🔧 Como Executar Localmente
 
 ### Pré-requisitos
 
-- Node.js 18+
-- npm ou yarn
-- Docker (opcional)
+- **Node.js**: 18.0 ou superior
+- **NPM**: 9.0 ou superior
+- **Docker** (opcional para containerização)
 
 ### Instalação
 
+1. Clone o repositório:
 ```bash
-# Clone o repositório
 git clone [url-do-repositorio]
-
-# Entre na pasta
 cd pet-manager
+```
 
-# Instale as dependências
+2. Instale as dependências:
+```bash
 npm install
+```
 
-# Execute em modo desenvolvimento
+3. Configure as variáveis de ambiente (opcional, utiliza defaults da aplicação):
+   A aplicação está configurada para se conectar à API em `https://pet-api-seplag.onrender.com`.
+
+4. Inicie o servidor de desenvolvimento:
+```bash
 npm run dev
 ```
 
-A aplicação estará disponível em `http://localhost:5173`
+Acesse em `http://localhost:5173`
 
-### Executar com Docker
+## 🐳 Executar com Docker
 
+O projeto possui configuração completa de Docker e Docker Compose, incluindo um servidor **Nginx** otimizado para Single Page Applications (SPA).
+
+> [!IMPORTANT]
+> Certifique-se de estar dentro da pasta `pet-manager` para executar os comandos Docker.
+
+1. Navegue para a pasta do projeto:
 ```bash
-# Build da imagem
-docker build -t pet-manager .
-
-# Executar container
-docker run -p 80:80 pet-manager
+cd pet-manager
 ```
 
-Acesse em `http://localhost`
+2. Construa e inicie o container:
+```bash
+docker-compose up --build
+```
 
-## 🧪 Executar Testes
+A aplicação estará disponível em `http://localhost`.
+
+### Recursos do Nginx Incluídos:
+- Compressão **Gzip** para carregamento rápido.
+- Cache de assets estáticos.
+- Headers de segurança (**X-Frame-Options**, **X-Content-Type-Options**).
+- Endpoint de **Health Check** em `/health`.
+
+## 🧪 Testes
+
+O projeto utiliza Vitest para uma execução de testes extremamente rápida.
 
 ```bash
-# Todos os testes
+# Executar testes uma única vez
 npm test
 
-# Com coverage
-npm run test:coverage
-
-# Watch mode
+# Executar testes em modo watch
 npm run test:watch
-```
 
-## 📦 Deploy
-
-### Build de Produção
-
-```bash
-npm run build
-```
-
-Os arquivos otimizados estarão em `/dist`
-
-### Estratégia de Deploy Sugerida
-
-1. **Vercel/Netlify** (Recomendado para MVP)
-   - Deploy automático via Git
-   - CDN global
-   - SSL gratuito
-   - Simples configuração
-
-2. **AWS S3 + CloudFront**
-   - Hospedagem estática escalável
-   - CDN da AWS
-   - Alta disponibilidade
-
-3. **Docker + Kubernetes**
-   - Ambiente containerizado
-   - Orquestração de containers
-   - Escalabilidade horizontal
-
-### CI/CD Pipeline Sugerido
-
-```yaml
-# Exemplo GitHub Actions
-build → test → lint → deploy (staging) → deploy (production)
+# Gerar relatório de cobertura
+npm run test:coverage
 ```
 
 ## ✅ Requisitos Implementados
 
-### Requisitos Gerais
-- ✅ Requisições em tempo real (Axios)
-- ✅ Layout responsivo
-- ✅ Tailwind CSS
-- ✅ Lazy Loading Routes
-- ✅ Paginação (10 itens por página)
-- ✅ TypeScript
-- ✅ Componentização
-- ✅ Testes unitários (Serviços e Componentes)
+### Funcionalidades Principais
+- **Autenticação Completa**: Login seguro com JWT e sistema de **Refresh Token** automático.
+- **Gestão de Pets**: CRUD completo, busca por nome e paginação de 10 itens.
+- **Gestão de Tutores**: CRUD completo com vinculação dinâmica de pets.
+- **Upload de Fotos**: Integração para upload e preview de fotos de pets e tutores.
+- **Modo Dark/Light**: Tema persistente que detecta automaticamente a preferência do sistema.
 
-### Requisitos Específicos
-
-#### 1. Tela Inicial - Listagem de Pets
-- ✅ GET /v1/pets
-- ✅ Cards com foto, nome, espécie e idade
-- ✅ Paginação (10 por página)
-- ✅ Busca por nome
-
-#### 2. Detalhamento do Pet
-- ✅ Navegação ao clicar no card
-- ✅ GET /v1/pets/{id}
-- ✅ Exibição de dados do tutor
-- ✅ Destaque ao nome do pet
-
-#### 3. Cadastro/Edição de Pet
-- ✅ POST /v1/pets (cadastro)
-- ✅ PUT /v1/pets/{id} (edição)
-- ✅ Campos: nome, espécie, idade, raça
-- ✅ Upload de foto
-- ✅ Máscaras de input
-
-#### 4. Cadastro/Edição de Tutor
-- ✅ POST /v1/tutores (cadastro)
-- ✅ PUT /v1/tutores/{id} (edição)
-- ✅ Campos: nome, telefone, endereço
-- ✅ Upload de foto
-- ✅ Listagem de pets vinculados
-- ✅ Vincular/desvincular pets
-
-#### 5. Autenticação
-- ✅ POST /autenticacao/login
-- ✅ PUT /autenticacao/refresh
-- ✅ Gerenciamento automático de token
-
-### Requisitos Sênior
-- ✅ Health Checks e Liveness/Readiness
-- ✅ Testes unitários
-- ✅ Padrão Facade (service layer)
-- ⚠️ BehaviorSubject (optei por Context API)
-
-## 🎨 Funcionalidades Extras
-
-- Loading states com skeletons
-- Tratamento robusto de erros
-- Toast notifications
-- Validação de formulários
-- Modal de confirmação para exclusões
-- Preview de imagens antes do upload
-- Feedback visual em todas as ações
-
-## 📊 Cobertura de Testes
-
-- Componentes: `Card.test.tsx`
-- Serviços: `pets_service.test.ts`
-- Cobertura: Focada nos fluxos principais de dados e renderização.
-
-## 🔐 Segurança
-
-- Tokens armazenados com segurança
-- Refresh automático de tokens
-- Rotas protegidas
-- Sanitização de inputs
-- HTTPS obrigatório em produção
-
-## 📈 Escalabilidade
-
-- Lazy loading de rotas
-- Code splitting automático
-- Otimização de imagens
-- Memoização de componentes pesados
-- Debounce em buscas
-
-## 🐛 Problemas Conhecidos e Limitações
-
-[Liste aqui o que não foi implementado ou precisa melhorias]
-
-Exemplo:
-- Scroll infinito não implementado (optou-se por paginação)
-- Testes E2E não incluídos
-- Internacionalização não implementada
-
-## 📝 Decisões Técnicas
-
-### Por que React?
-- Ecossistema maduro
-- Performance com Virtual DOM
-- Grande comunidade
-- Hooks modernos
-
-### Por que Context API ao invés de Redux?
-- Projeto de tamanho médio
-- Menor complexidade
-- Menos boilerplate
-- Suficiente para o escopo
-
-### Por que Axios ao invés de Fetch?
-- Interceptors nativos
-- Transformação automática de JSON
-- Melhor tratamento de erros
-- Cancelamento de requisições
-
-## 🤝 Commits
-
-Seguindo convenção Conventional Commits:
-- `feat:` nova funcionalidade
-- `fix:` correção de bug
-- `docs:` documentação
-- `style:` formatação
-- `refactor:` refatoração
-- `test:` testes
-- `chore:` manutenção
-
-## 📞 Contato
-
-[Seu Nome] - [seu.email@exemplo.com]
+### Diferenciais Técnicos
+- **Layout Responsivo**: Totalmente adaptável para Mobile, Tablet e Desktop.
+- **Lazy Loading**: Carregamento sob demanda de todas as rotas para otimizar o bundle inicial.
+- **Feedback Visual**: Skeletons de carregamento, Toasts de notificação e modais de confirmação.
+- **Máscaras de Input**: Formatação automática para CPF, Telefone e CEP.
+- **Health Checks**: Endpoint pronto para monitoramento em ambiente de produção.
 
 ---
 

@@ -88,7 +88,6 @@ describe('TutorEdit', () => {
         const input = container.querySelector('input[type="file"]') as HTMLInputElement;
         fireEvent.change(input, { target: { files: [file] } });
 
-        // Espera o processamento da imagem (mesmo mocked, é async)
         await screen.findByText(/Remover foto/i);
 
         fireEvent.click(screen.getByRole('button', { name: /Salvar Alterações/i }));

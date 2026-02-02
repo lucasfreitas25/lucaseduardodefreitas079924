@@ -26,7 +26,6 @@ class ErrorBoundary extends Component<Props, State> {
     }
 
     public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-        // Log the error using our senior logging service
         logger.error(error, {
             componentStack: errorInfo.componentStack,
             location: window.location.href
@@ -40,7 +39,6 @@ class ErrorBoundary extends Component<Props, State> {
 
     public render() {
         if (this.state.hasError && this.state.error) {
-            // Use custom fallback if provided, otherwise default to our nice UI
             if (this.props.fallback) {
                 return this.props.fallback;
             }

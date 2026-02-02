@@ -1,0 +1,23 @@
+services:
+  pet-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pet-manager-app
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - pet-network
+
+networks:
+  pet-network:
+    driver: bridge

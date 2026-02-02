@@ -15,11 +15,8 @@ export function PhotoUpload({ onPhotoSelect, currentPhotoUrl, label = 'Foto', cl
     const [isCompressing, setIsCompressing] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Update preview when currentPhotoUrl changes (e.g. after data fetch)
     useEffect(() => {
-        if (currentPhotoUrl) {
-            setPreview(currentPhotoUrl);
-        }
+        setPreview(currentPhotoUrl || null);
     }, [currentPhotoUrl]);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,12 +27,10 @@ export function PhotoUpload({ onPhotoSelect, currentPhotoUrl, label = 'Foto', cl
                 const objectUrl = URL.createObjectURL(file);
                 setPreview(objectUrl);
 
-                // Compress image before passing it up
                 const compressedFile = await compressImage(file);
                 onPhotoSelect(compressedFile);
             } catch (error) {
                 console.error('Error compressing image:', error);
-                // Fallback to original file if compression fails
                 onPhotoSelect(file);
             } finally {
                 setIsCompressing(false);

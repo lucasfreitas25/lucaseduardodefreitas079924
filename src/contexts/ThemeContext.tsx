@@ -21,7 +21,6 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
             return savedTheme;
         }
 
-        // Verifica se o sistema prefere o tema escuro
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
             return 'dark';
         }
@@ -29,7 +28,6 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     });
 
     useEffect(() => {
-        // Aplica o tema ao documento
         const root = document.documentElement;
         if (theme === 'dark') {
             root.classList.add('dark');

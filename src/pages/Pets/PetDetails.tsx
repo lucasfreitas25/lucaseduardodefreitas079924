@@ -1,5 +1,5 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar } from 'lucide-react';
+import { ArrowLeft, Calendar, PawPrint } from 'lucide-react';
 import { usePet } from '../../hooks/queries/usePet';
 
 export default function PetDetails() {
@@ -42,16 +42,20 @@ export default function PetDetails() {
             <article className="bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800">
                 <figure className="aspect-w-16 aspect-h-9 relative h-64 sm:h-96">
                     <img
-                        src={selectedPet.foto?.url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=1000'}
+                        src={selectedPet.foto?.url || '/assets/imagem_pet_sem_foto.png'}
                         alt={selectedPet.nome}
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = '/assets/imagem_pet_sem_foto.png';
+                        }}
                     />
                     <figcaption className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
                         <header className="p-8 text-white w-full">
                             <div className="flex justify-between items-end">
                                 <div>
                                     <h1 className="text-4xl font-bold mb-2">{selectedPet.nome}</h1>
-                                    <p className="text-xl opacity-90">{selectedPet.raca}</p>
+
                                 </div>
 
                             </div>
@@ -66,6 +70,14 @@ export default function PetDetails() {
                             <div>
                                 <p className="text-xs opacity-70">Idade</p>
                                 <p className="font-semibold">{selectedPet.idade} anos</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 p-4 rounded-xl bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300">
+                            <PawPrint className="h-6 w-6" />
+                            <div>
+                                <p className="text-xs opacity-70">Raça</p>
+                                <p className="font-semibold">{selectedPet.raca}</p>
                             </div>
                         </div>
 

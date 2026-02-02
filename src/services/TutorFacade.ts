@@ -34,7 +34,6 @@ export const tutorFacade = {
             phone: createdTutor.telefone,
             address: createdTutor.endereco,
             cpf: createdTutor.cpf,
-            // photo_url handled by UI fetching details or relying on refresh
         };
     },
 

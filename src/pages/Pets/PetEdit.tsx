@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Dog, Save } from 'lucide-react';
 import { usePet, useUpdatePet } from '../../hooks/queries/usePet';
-import { petsService } from '../../services/api/pets_service'; // Still used for photo delete
+import { petsService } from '../../services/api/pets_service';
 import { PhotoUpload } from '../../components/Common/PhotoUpload';
 
 export default function PetEdit() {
@@ -13,7 +13,6 @@ export default function PetEdit() {
     const { data: selectedPet, isLoading: loadingDetails, error: loadError } = usePet(numericId);
     const { mutateAsync: updatePet, isPending: isUpdating, error: updateError } = useUpdatePet();
 
-    // Form state
     const [formData, setFormData] = useState<{
         nome: string;
         raca: string;
@@ -85,7 +84,6 @@ export default function PetEdit() {
         }
     };
 
-    // Show loading only if loading details initially
     if (loadingDetails) {
         return (
             <div className="flex justify-center items-center min-h-[50vh]">
