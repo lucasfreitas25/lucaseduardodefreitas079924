@@ -6,8 +6,11 @@ import { PhotoUpload } from '../../components/Common/PhotoUpload';
 
 export default function PetAdd() {
     const navigate = useNavigate();
-    const { mutateAsync: createPet, isPending: loading, error: mutationError } = useCreatePet();
+    const { mutateAsync: createPet, isPending, error: mutationError } = useCreatePet();
     const [validationError, setValidationError] = useState<string | null>(null);
+    const [isSaving, setIsSaving] = useState(false);
+
+    const loading = isPending || isSaving;
 
     const [formData, setFormData] = useState<{
         nome: string;
@@ -42,6 +45,7 @@ export default function PetAdd() {
                 return;
             }
 
+            setIsSaving(true);
             await createPet({
                 nome: formData.nome,
                 raca: formData.raca,
@@ -52,6 +56,8 @@ export default function PetAdd() {
             navigate('/pets');
         } catch (err: any) {
             console.error('Error creating pet:', err);
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -156,7 +162,7 @@ export default function PetAdd() {
                             {loading ? (
                                 <>
                                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                                    Salvando...
+                                    {formData.foto ? 'Enviando Foto...' : 'Salvando...'}
                                 </>
                             ) : (
                                 <>

@@ -9,8 +9,11 @@ import { formatCPF, formatTelefone } from '../../utils/formatters';
 
 export default function TutorAdd() {
     const navigate = useNavigate();
-    const { mutateAsync: createTutor, isPending: loading, error: mutationError } = useCreateTutor();
+    const { mutateAsync: createTutor, isPending, error: mutationError } = useCreateTutor();
     const [validationError, setValidationError] = useState<string | null>(null);
+    const [isSaving, setIsSaving] = useState(false);
+
+    const loading = isPending || isSaving;
     const { data: petsData } = usePets(1, '');
 
     const [formData, setFormData] = useState<{
@@ -73,6 +76,7 @@ export default function TutorAdd() {
             const cleanCPF = formData.cpf ? String(formData.cpf).replace(/\D/g, '') : '';
             const cleanTelefone = formData.telefone ? String(formData.telefone).replace(/\D/g, '') : '';
 
+            setIsSaving(true);
             await createTutor({
                 nome: formData.nome,
                 email: formData.email,
@@ -86,6 +90,8 @@ export default function TutorAdd() {
             navigate('/tutors');
         } catch (err: any) {
             console.error('Error creating tutor:', err);
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -249,7 +255,7 @@ export default function TutorAdd() {
                             {loading ? (
                                 <>
                                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                                    Salvando...
+                                    {formData.foto ? 'Enviando Foto...' : 'Salvando...'}
                                 </>
                             ) : (
                                 <>

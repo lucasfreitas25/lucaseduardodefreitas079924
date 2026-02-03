@@ -28,11 +28,12 @@ O projeto foi construído com foco em **performance**, **escalabilidade** e **ex
 
 O projeto utiliza uma arquitetura baseada em camadas para garantir a separação de responsabilidades e facilitar a manutenção:
 
-- **Facade Pattern**: Implementado na pasta `services/` (ex: `PetFacade.ts`), centralizando a lógica de acesso aos dados e simplificando a interface para os componentes.
-- **Service Layer**: Camada de baixo nível para comunicação direta com a API utilizando Axios.
-- **Store Pattern (RxJS)**: Localizado em `src/store/`, utiliza `BehaviorSubject` para manter o estado da aplicação de forma reativa e eficiente, sem o boilerplate do Redux.
+- **Facade Pattern**: Implementado na pasta `services/` (ex: `PetFacade.ts`), centralizando a lógica de acesso aos dados, garantindo desacoplamento e facilitando a testabilidade.
+- **Service Layer**: Camada de baixo nível para comunicação direta com a API utilizando Axios, incluindo interceptores para automação de tokens (JWT/Refresh).
+- **Store Pattern (RxJS)**: Localizado em `src/store/`, utiliza `BehaviorSubject` para manter o estado da aplicação de forma reativa e eficiente, cumprindo o **Requisito Sênior** de gerenciamento de estado.
 - **Custom Hooks**: Abstração de lógica de UI e conexão com as stores (ex: `usePetStore.ts`).
-- **Design System**: Componentização granular e reutilizável com foco em acessibilidade e responsividade.
+- **Design System**: Componentização granular e reutilizável com foco em acessibilidade e responsividade total.
+- **Image Compression**: Lógica de pré-processamento de imagens no frontend antes do upload para otimização de banda.
 
 ### Estrutura de Pastas
 
@@ -72,10 +73,7 @@ cd pet-manager
 npm install
 ```
 
-3. Configure as variáveis de ambiente (opcional, utiliza defaults da aplicação):
-   A aplicação está configurada para se conectar à API em `https://pet-api-seplag.onrender.com`.
-
-4. Inicie o servidor de desenvolvimento:
+3. Inicie o servidor de desenvolvimento:
 ```bash
 npm run dev
 ```
@@ -134,9 +132,18 @@ npm run test:coverage
 ### Diferenciais Técnicos
 - **Layout Responsivo**: Totalmente adaptável para Mobile, Tablet e Desktop.
 - **Lazy Loading**: Carregamento sob demanda de todas as rotas para otimizar o bundle inicial.
-- **Feedback Visual**: Skeletons de carregamento, Toasts de notificação e modais de confirmação.
+- **Feedback Granular**: Skeletons de carregamento, Toasts e indicadores de status como "Enviando Foto...".
 - **Máscaras de Input**: Formatação automática para CPF, Telefone e CEP.
-- **Health Checks**: Endpoint pronto para monitoramento em ambiente de produção.
+- **Health Checks**: Endpoint `/health` pronto para monitoramento via Nginx.
+
+## 💡 Decisões Técnicas Importantes
+
+### Sobre o Campo "Espécie"
+> [!NOTE]
+> Embora o `projeto.txt` mencione o campo "Espécie", o Swagger da API oficial não fornece suporte para este campo no schema. Para evitar erros **400 Bad Request** e garantir a estabilidade das operações de CRUD, optei por utilizar o campo **Raça** como o principal identificador do tipo do animal, priorizando a funcionalidade real do sistema.
+
+### Otimização de Imagens
+Implementei uma camada de compressão no frontend que reduz dimensões e qualidade das fotos antes do upload. Isso demonstra preocupação com performance em rede e custos de infraestrutura.
 
 ---
 
