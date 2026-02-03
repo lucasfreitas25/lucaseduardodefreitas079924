@@ -95,7 +95,7 @@ export default function PetEdit() {
     return (
         <main className="max-w-2xl mx-auto space-y-6">
             <button
-                onClick={() => navigate('/pets')}
+                onClick={() => navigate(-1)}
                 className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
                 disabled={isUpdating}
             >

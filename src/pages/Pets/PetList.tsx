@@ -1,14 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Trash } from 'lucide-react';
 import { usePets, useDeletePet } from '../../hooks/queries/usePet';
 import { Card } from '../../components/UI/Card';
 import { Pagination } from '../../components/UI/Pagination';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDebounce } from '../../hooks/useDebounce';
 
 export default function PetList() {
-    const [page, setPage] = useState(1);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const page = Number(searchParams.get('page')) || 1;
+    const urlSearch = searchParams.get('search') || '';
+
+    const [searchTerm, setSearchTerm] = useState(urlSearch);
     const debouncedSearch = useDebounce(searchTerm, 500);
 
     const { data, isLoading, error, refetch } = usePets(page, debouncedSearch);
@@ -16,13 +20,27 @@ export default function PetList() {
 
     const navigate = useNavigate();
 
+    useEffect(() => {
+        if (debouncedSearch !== urlSearch) {
+            const newParams = new URLSearchParams(searchParams);
+            if (debouncedSearch) {
+                newParams.set('search', debouncedSearch);
+            } else {
+                newParams.delete('search');
+            }
+            newParams.set('page', '1');
+            setSearchParams(newParams);
+        }
+    }, [debouncedSearch, urlSearch, searchParams, setSearchParams]);
+
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
-        setPage(1);
     };
 
     const handlePageChange = (newPage: number) => {
-        setPage(newPage);
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set('page', String(newPage));
+        setSearchParams(newParams);
     };
 
     const handleDelete = async (id: number) => {

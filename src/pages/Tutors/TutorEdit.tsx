@@ -147,7 +147,7 @@ export default function TutorEdit() {
     return (
         <main className="max-w-2xl mx-auto space-y-6">
             <button
-                onClick={() => navigate('/tutors')}
+                onClick={() => navigate(-1)}
                 className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
                 disabled={isUpdating}
             >
@@ -297,13 +297,15 @@ export default function TutorEdit() {
                                 selectedTutor.pets.map((pet: any) => (
                                     <div key={pet.id} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-800">
                                         <div className="flex items-center gap-3">
-                                            {pet.foto?.url ? (
-                                                <img src={pet.foto.url} alt={pet.nome} className="w-10 h-10 rounded-full object-cover" />
-                                            ) : (
-                                                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                                                    <Dog className="h-5 w-5 text-blue-600 dark:text-blue-300" />
-                                                </div>
-                                            )}
+                                            <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden border border-gray-100 dark:border-gray-700">
+                                                {pet.foto?.url ? (
+                                                    <img src={pet.foto.url} alt={pet.nome} className="h-full w-full object-contain" />
+                                                ) : (
+                                                    <div className="flex items-center justify-center">
+                                                        <Dog className="h-6 w-6 text-blue-600 dark:text-blue-300" />
+                                                    </div>
+                                                )}
+                                            </div>
                                             <div>
                                                 <p className="font-medium text-gray-900 dark:text-gray-100">{pet.nome}</p>
                                                 <p className="text-xs text-gray-500">{pet.raca}</p>

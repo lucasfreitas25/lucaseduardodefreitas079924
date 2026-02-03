@@ -56,15 +56,21 @@ export function PhotoUpload({ onPhotoSelect, currentPhotoUrl, label = 'Foto', cl
     return (
         <div className={`flex flex-col items-center gap-4 ${className}`}>
             <div
-                className="relative group cursor-pointer w-40 h-40 rounded-full overflow-hidden border-4 border-white dark:border-gray-700 shadow-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center transition-transform hover:scale-105"
+                className="relative group cursor-pointer w-40 h-40 rounded-2xl overflow-hidden border-2 border-gray-200 dark:border-gray-700 shadow-lg bg-gray-50 dark:bg-gray-800 flex items-center justify-center transition-transform hover:scale-105"
                 onClick={triggerFileInput}
             >
                 {preview ? (
-                    <img
-                        src={preview}
-                        alt="Preview"
-                        className="w-full h-full object-cover"
-                    />
+                    <>
+                        <div
+                            className="absolute inset-0 bg-cover bg-center blur-lg opacity-40 scale-110"
+                            style={{ backgroundImage: `url(${preview})` }}
+                        />
+                        <img
+                            src={preview}
+                            alt="Preview"
+                            className="relative z-10 w-full h-full object-contain"
+                        />
+                    </>
                 ) : (
                     <div className="flex flex-col items-center justify-center text-gray-400 dark:text-gray-500">
                         <Camera className="h-10 w-10 mb-2" />

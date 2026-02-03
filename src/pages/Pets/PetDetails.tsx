@@ -40,24 +40,30 @@ export default function PetDetails() {
             </button>
 
             <article className="bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800">
-                <figure className="aspect-w-16 aspect-h-9 relative h-64 sm:h-96">
+                <figure className="relative h-64 sm:h-96 overflow-hidden flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+                    {/* Background Blurred Image */}
+                    <div
+                        className="absolute inset-0 bg-cover bg-center blur-2xl scale-110 opacity-30 dark:opacity-40"
+                        style={{ backgroundImage: `url(${selectedPet.foto?.url || '/assets/imagem_pet_sem_foto.png'})` }}
+                    />
+
+                    {/* Main Clear Image */}
                     <img
                         src={selectedPet.foto?.url || '/assets/imagem_pet_sem_foto.png'}
                         alt={selectedPet.nome}
-                        className="w-full h-full object-cover"
+                        className="relative z-10 max-h-full max-w-full object-contain"
                         onError={(e) => {
                             const target = e.target as HTMLImageElement;
                             target.src = '/assets/imagem_pet_sem_foto.png';
                         }}
                     />
-                    <figcaption className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
+
+                    <figcaption className="absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black/60 to-transparent flex items-end">
                         <header className="p-8 text-white w-full">
                             <div className="flex justify-between items-end">
                                 <div>
                                     <h1 className="text-4xl font-bold mb-2">{selectedPet.nome}</h1>
-
                                 </div>
-
                             </div>
                         </header>
                     </figcaption>
@@ -72,6 +78,7 @@ export default function PetDetails() {
                                 <p className="font-semibold">{selectedPet.idade} anos</p>
                             </div>
                         </div>
+
 
                         <div className="flex items-center gap-3 p-4 rounded-xl bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300">
                             <PawPrint className="h-6 w-6" />
@@ -97,9 +104,9 @@ export default function PetDetails() {
                                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {selectedPet.tutores.map((tutor) => (
                                         <li key={tutor.id} className="flex items-start gap-4 p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 transition-colors bg-gray-50 dark:bg-gray-800/50">
-                                            <figure className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0">
+                                            <figure className="h-14 w-14 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0 overflow-hidden border border-gray-100 dark:border-gray-700">
                                                 {tutor.foto ? (
-                                                    <img src={tutor.foto.url} alt={tutor.nome} className="h-full w-full rounded-full object-cover" />
+                                                    <img src={tutor.foto.url} alt={tutor.nome} className="h-full w-full object-contain" />
                                                 ) : (
                                                     <span className="text-blue-600 dark:text-blue-300 font-bold text-lg">
                                                         {tutor.nome.charAt(0).toUpperCase()}

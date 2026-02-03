@@ -58,7 +58,7 @@ export default function PetAdd() {
     return (
         <main className="max-w-2xl mx-auto space-y-6 animate-fade-in">
             <button
-                onClick={() => navigate('/pets')}
+                onClick={() => navigate(-1)}
                 className="flex items-center text-gray-600 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all font-medium group"
                 disabled={loading}
             >

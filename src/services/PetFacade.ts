@@ -12,7 +12,6 @@ export const petFacade = {
     },
 
     createPet: async (data: { nome: string; raca: string; idade: number; foto?: File }): Promise<Pet> => {
-
         const petDTO: PetDTO = {
             id: 0,
             nome: data.nome,
