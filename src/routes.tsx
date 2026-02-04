@@ -2,14 +2,14 @@ import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { MainLayout } from './MainLayout';
 import Login from './pages/Auth/Login';
-import PetAdd from './pages/Pets/PetAdd';
-import TutorAdd from './pages/Tutors/TutorAdd';
+import PetAdd from './pages/Pets/PetAdd/PetAdd';
+import TutorAdd from './pages/Tutors/TutorAdd/TutorAdd';
 
-const PetDetails = lazy(() => import('./pages/Pets/PetDetails'));
-const PetEdit = lazy(() => import('./pages/Pets/PetEdit'));
-const TutorEdit = lazy(() => import('./pages/Tutors/TutorEdit'));
-const PetIndex = lazy(() => import('./pages/Pets/PetIndex'));
-const TutorIndex = lazy(() => import('./pages/Tutors/TutorIndex'));
+const PetDetails = lazy(() => import('./pages/Pets/PetDetails/PetDetails'));
+const PetEdit = lazy(() => import('./pages/Pets/PetEdit/PetEdit'));
+const TutorEdit = lazy(() => import('./pages/Tutors/TutorEdit/TutorEdit'));
+const PetIndex = lazy(() => import('./pages/Pets/PetList/PetIndex'));
+const TutorIndex = lazy(() => import('./pages/Tutors/TutorList/TutorIndex'));
 
 import { PrivateRoute } from './components/Auth/PrivateRoute';
 

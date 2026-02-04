@@ -1,10 +1,10 @@
-import { render, screen, waitFor, fireEvent } from '../../test/test-utils';
-import { TutorService } from '../../services/api/tutors_service';
-import { petsService } from '../../services/api/pets_service';
+import { render, screen, waitFor, fireEvent } from '../../../test/test-utils';
+import { TutorService } from '../../../services/api/tutors_service';
+import { petsService } from '../../../services/api/pets_service';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import TutorAdd from './TutorAdd';
 
-vi.mock('../../services/api/tutors_service', () => ({
+vi.mock('../../../services/api/tutors_service', () => ({
     TutorService: {
         createTutor: vi.fn(),
         uploadTutorPhoto: vi.fn(),
@@ -12,7 +12,7 @@ vi.mock('../../services/api/tutors_service', () => ({
     },
 }));
 
-vi.mock('../../services/api/pets_service', () => ({
+vi.mock('../../../services/api/pets_service', () => ({
     petsService: {
         getPets: vi.fn()
     },
@@ -20,9 +20,9 @@ vi.mock('../../services/api/pets_service', () => ({
 
 const VALID_CPF = '529.982.247-25';
 
-import { tutorStore } from '../../store/UseTutorStore';
+import { tutorStore } from '../../../store/UseTutorStore';
 
-vi.mock('../../utils/imageUtils', () => ({
+vi.mock('../../../utils/imageUtils', () => ({
     compressImage: vi.fn((file) => Promise.resolve(file)),
 }));
 
@@ -51,11 +51,11 @@ describe('TutorAdd', () => {
 
         const { container } = render(<TutorAdd />);
 
-        fireEvent.change(screen.getByLabelText(/Nome do Tutor/i), { target: { value: 'João Silva' } });
-        fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'joao@example.com' } });
+        fireEvent.change(screen.getByLabelText(/Nome Completo/i), { target: { value: 'João Silva' } });
+        fireEvent.change(screen.getByLabelText(/E-mail/i), { target: { value: 'joao@example.com' } });
         fireEvent.change(screen.getByLabelText(/CPF/i), { target: { value: VALID_CPF } });
         fireEvent.change(screen.getByLabelText(/Telefone/i), { target: { value: '(11) 98888-8888' } });
-        fireEvent.change(screen.getByLabelText(/Endereço/i), { target: { value: 'Rua Exemplo, 123' } });
+        fireEvent.change(screen.getByLabelText(/Endereço Completo/i), { target: { value: 'Rua Exemplo, 123' } });
 
         const form = container.querySelector('form');
         fireEvent.submit(form!);
@@ -69,11 +69,11 @@ describe('TutorAdd', () => {
         vi.mocked(TutorService.createTutor).mockResolvedValue({ id: 1, nome: 'João Silva' } as any);
         const { container } = render(<TutorAdd />);
 
-        fireEvent.change(screen.getByLabelText(/Nome do Tutor/i), { target: { value: 'João Silva' } });
-        fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'joao@example.com' } });
+        fireEvent.change(screen.getByLabelText(/Nome Completo/i), { target: { value: 'João Silva' } });
+        fireEvent.change(screen.getByLabelText(/E-mail/i), { target: { value: 'joao@example.com' } });
         fireEvent.change(screen.getByLabelText(/CPF/i), { target: { value: VALID_CPF } });
         fireEvent.change(screen.getByLabelText(/Telefone/i), { target: { value: '(11) 98888-8888' } });
-        fireEvent.change(screen.getByLabelText(/Endereço/i), { target: { value: 'Rua Exemplo, 123' } });
+        fireEvent.change(screen.getByLabelText(/Endereço Completo/i), { target: { value: 'Rua Exemplo, 123' } });
 
         const file = new File(['hello'], 'hello.png', { type: 'image/png' });
         const input = container.querySelector('input[type="file"]') as HTMLInputElement;
@@ -93,29 +93,29 @@ describe('TutorAdd', () => {
     it('deve exibir erro para email inválido', async () => {
         const { container } = render(<TutorAdd />);
 
-        fireEvent.change(screen.getByLabelText(/Nome do Tutor/i), { target: { value: 'João Silva' } });
-        fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'email-invalido' } });
+        fireEvent.change(screen.getByLabelText(/Nome Completo/i), { target: { value: 'João Silva' } });
+        fireEvent.change(screen.getByLabelText(/E-mail/i), { target: { value: 'email-invalido' } });
         fireEvent.change(screen.getByLabelText(/CPF/i), { target: { value: VALID_CPF } });
         fireEvent.change(screen.getByLabelText(/Telefone/i), { target: { value: '(11) 98888-8888' } });
-        fireEvent.change(screen.getByLabelText(/Endereço/i), { target: { value: 'Rua Exemplo, 123' } });
+        fireEvent.change(screen.getByLabelText(/Endereço Completo/i), { target: { value: 'Rua Exemplo, 123' } });
 
         const form = container.querySelector('form');
         fireEvent.submit(form!);
 
         await waitFor(() => {
-            expect(screen.getByText('Email inválido')).toBeDefined();
+            expect(screen.getByText('E-mail inválido')).toBeDefined();
         });
     });
 
     it('deve exibir erro para CPF inválido', async () => {
         const { container } = render(<TutorAdd />);
 
-        fireEvent.change(screen.getByLabelText(/Nome do Tutor/i), { target: { value: 'João Silva' } });
-        fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'joao@example.com' } });
+        fireEvent.change(screen.getByLabelText(/Nome Completo/i), { target: { value: 'João Silva' } });
+        fireEvent.change(screen.getByLabelText(/E-mail/i), { target: { value: 'joao@example.com' } });
         // CPF com dígitos verificadores incorretos
         fireEvent.change(screen.getByLabelText(/CPF/i), { target: { value: '123.456.789-00' } });
         fireEvent.change(screen.getByLabelText(/Telefone/i), { target: { value: '(11) 98888-8888' } });
-        fireEvent.change(screen.getByLabelText(/Endereço/i), { target: { value: 'Rua Exemplo, 123' } });
+        fireEvent.change(screen.getByLabelText(/Endereço Completo/i), { target: { value: 'Rua Exemplo, 123' } });
 
         const form = container.querySelector('form');
         fireEvent.submit(form!);
@@ -137,19 +137,19 @@ describe('TutorAdd', () => {
 
         render(<TutorAdd />);
 
-        fireEvent.change(screen.getByLabelText(/Nome do Tutor/i), { target: { value: 'João Silva' } });
-        fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'joao@example.com' } });
+        fireEvent.change(screen.getByLabelText(/Nome Completo/i), { target: { value: 'João Silva' } });
+        fireEvent.change(screen.getByLabelText(/E-mail/i), { target: { value: 'joao@example.com' } });
         fireEvent.change(screen.getByLabelText(/CPF/i), { target: { value: VALID_CPF } });
         fireEvent.change(screen.getByLabelText(/Telefone/i), { target: { value: '(11) 98888-8888' } });
-        fireEvent.change(screen.getByLabelText(/Endereço/i), { target: { value: 'Rua Exemplo, 123' } });
+        fireEvent.change(screen.getByLabelText(/Endereço Completo/i), { target: { value: 'Rua Exemplo, 123' } });
 
         // Seleciona o pet no dropdown
         await waitFor(() => {
             expect(screen.getByText('Rex (SRD)')).toBeDefined();
         });
-        fireEvent.change(screen.getByLabelText(/Vincular um Pet/i), { target: { value: '10' } });
+        fireEvent.change(screen.getByLabelText(/Selecione os pets para vincular/i), { target: { value: '10' } });
 
-        fireEvent.click(screen.getByRole('button', { name: /Salvar Tutor/i }));
+        fireEvent.click(screen.getByRole('button', { name: /Cadastrar Tutor/i }));
 
         await waitFor(() => {
             expect(TutorService.addPet).toHaveBeenCalledWith(1, 10);

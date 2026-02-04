@@ -24,7 +24,7 @@ export function useCreateTutor() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async (data: any) => {
-            const { foto, petId, ...tutorData } = data;
+            const { foto, petId, pets_indices, ...tutorData } = data;
             const newTutor = await TutorService.createTutor(tutorData);
 
             if (foto instanceof File && newTutor.id) {
@@ -35,11 +35,16 @@ export function useCreateTutor() {
                 await TutorService.addPet(newTutor.id, Number(petId));
             }
 
+            if (pets_indices && Array.isArray(pets_indices) && newTutor.id) {
+                await Promise.all(pets_indices.map(id => TutorService.addPet(newTutor.id, Number(id))));
+            }
+
             return newTutor;
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['tutors'] });
             queryClient.invalidateQueries({ queryKey: ['pets'] });
+            queryClient.invalidateQueries({ queryKey: ['pet'] }); // Invalidate prefix for pet details
         }
     });
 }
@@ -81,10 +86,11 @@ export function useAddPet() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: ({ tutorId, petId }: { tutorId: number, petId: number }) => TutorService.addPet(tutorId, petId),
-        onSuccess: (_, { tutorId }) => {
+        onSuccess: (_, { tutorId, petId }) => {
             queryClient.invalidateQueries({ queryKey: ['tutors'] });
             queryClient.invalidateQueries({ queryKey: ['tutor', tutorId] });
             queryClient.invalidateQueries({ queryKey: ['pets'] });
+            queryClient.invalidateQueries({ queryKey: ['pet', petId] });
         }
     });
 }
@@ -93,10 +99,11 @@ export function useRemovePet() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: ({ tutorId, petId }: { tutorId: number, petId: number }) => TutorService.removePet(tutorId, petId),
-        onSuccess: (_, { tutorId }) => {
+        onSuccess: (_, { tutorId, petId }) => {
             queryClient.invalidateQueries({ queryKey: ['tutors'] });
             queryClient.invalidateQueries({ queryKey: ['tutor', tutorId] });
             queryClient.invalidateQueries({ queryKey: ['pets'] });
+            queryClient.invalidateQueries({ queryKey: ['pet', petId] });
         }
     });
 }

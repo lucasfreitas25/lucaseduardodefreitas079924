@@ -1,13 +1,13 @@
-import { render, screen, waitFor, fireEvent } from '../../test/test-utils';
-import { petsService } from '../../services/api/pets_service';
+import { render, screen, waitFor, fireEvent } from '../../../test/test-utils';
+import { petsService } from '../../../services/api/pets_service';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import PetAdd from './PetAdd';
 
-vi.mock('../../utils/imageUtils', () => ({
+vi.mock('../../../utils/imageUtils', () => ({
     compressImage: vi.fn((file) => Promise.resolve(file)),
 }));
 
-vi.mock('../../services/api/pets_service', () => ({
+vi.mock('../../../services/api/pets_service', () => ({
     petsService: {
         createPet: vi.fn(),
         uploadPetPhoto: vi.fn(),
@@ -35,7 +35,7 @@ describe('PetAdd', () => {
         fireEvent.change(screen.getByLabelText(/Raça/i), { target: { value: 'SRD' } });
         fireEvent.change(screen.getByLabelText(/Idade/i), { target: { value: '3' } });
 
-        const saveButton = screen.getByRole('button', { name: /Salvar Pet/i });
+        const saveButton = screen.getByRole('button', { name: /Adicionar Pet/i });
         fireEvent.click(saveButton);
 
         await waitFor(() => {
@@ -66,7 +66,7 @@ describe('PetAdd', () => {
         // Espera o processamento da imagem (mesmo mocked, é async)
         await screen.findByText(/Remover foto/i);
 
-        const saveButton = screen.getByRole('button', { name: /Salvar Pet/i });
+        const saveButton = screen.getByRole('button', { name: /Adicionar Pet/i });
         fireEvent.click(saveButton);
 
         await waitFor(() => {
@@ -84,7 +84,7 @@ describe('PetAdd', () => {
         fireEvent.change(screen.getByLabelText(/Raça/i), { target: { value: 'SRD' } });
         fireEvent.change(screen.getByLabelText(/Idade/i), { target: { value: '3' } });
 
-        fireEvent.click(screen.getByRole('button', { name: /Salvar Pet/i }));
+        fireEvent.click(screen.getByRole('button', { name: /Adicionar Pet/i }));
 
         await waitFor(() => {
             const alert = screen.getByRole('alert');

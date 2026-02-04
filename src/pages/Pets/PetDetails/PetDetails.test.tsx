@@ -1,10 +1,10 @@
-import { render, screen, waitFor } from '../../test/test-utils';
-import { petsService } from '../../services/api/pets_service';
+import { render, screen, waitFor } from '../../../test/test-utils';
+import { petsService } from '../../../services/api/pets_service';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Route, Routes } from 'react-router-dom';
 import PetDetails from './PetDetails';
 
-vi.mock('../../services/api/pets_service', () => ({
+vi.mock('../../../services/api/pets_service', () => ({
     petsService: {
         getPetById: vi.fn(),
     },
@@ -52,8 +52,8 @@ describe('PetDetails', () => {
             expect(screen.getByText('SRD')).toBeDefined();
             expect(screen.getByText('3 anos')).toBeDefined();
             expect(screen.getByText('João Silva')).toBeDefined();
-            expect(screen.getByText(/Telefone: \(11\) 99999-9999/i)).toBeDefined();
-            expect(screen.getByText(/Email: joao@example.com/i)).toBeDefined();
+            expect(screen.getByText('(11) 99999-9999')).toBeDefined();
+            expect(screen.getByText('joao@example.com')).toBeDefined();
         });
 
         const img = screen.getByAltText('Rex');

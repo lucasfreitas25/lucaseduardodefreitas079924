@@ -1,16 +1,16 @@
-import { render, screen, waitFor, fireEvent } from '../../test/test-utils';
+import { render, screen, waitFor, fireEvent } from '../../../test/test-utils';
 import TutorList from './TutorIndex';
-import { TutorService } from '../../services/api/tutors_service';
+import { TutorService } from '../../../services/api/tutors_service';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('../../services/api/tutors_service', () => ({
+vi.mock('../../../services/api/tutors_service', () => ({
     TutorService: {
         getTutors: vi.fn(),
         deleteTutor: vi.fn(),
     },
 }));
 
-import { tutorStore } from '../../store/UseTutorStore';
+import { tutorStore } from '../../../store/UseTutorStore';
 
 describe('TutorList', () => {
     beforeEach(() => {

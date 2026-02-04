@@ -6,7 +6,7 @@ export const TutorService = {
     getTutors: async (filters: TutorFilters = {}): Promise<PaginatedResponse<Tutor>> => {
         const params = {
             nome: filters.name,
-            page: (filters.page || 1) - 1, // API is 0-indexed
+            page: (filters.page || 1) - 1,
             size: filters.limit || 10,
         };
 
@@ -16,7 +16,7 @@ export const TutorService = {
         return {
             items: dto.content.map(mapTutorDtoToDomain),
             total: dto.total,
-            page: dto.page + 1, // Convert back to 1-indexed for UI
+            page: dto.page + 1,
             per_page: dto.size,
             total_pages: dto.pageCount
         };

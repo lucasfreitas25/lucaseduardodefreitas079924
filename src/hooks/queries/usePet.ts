@@ -2,10 +2,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { petsService } from "../../services/api/pets_service";
 
 
-export function usePets(page: number, name?: string) {
+export function usePets(page: number, name?: string, limit?: number) {
     return useQuery({
-        queryKey: ['pets', page, name],
-        queryFn: () => petsService.getPets({ page, name }),
+        queryKey: ['pets', page, name, limit],
+        queryFn: () => petsService.getPets({ page, name, limit }),
         placeholderData: (previousData) => previousData,
         staleTime: 60 * 1000
     });
@@ -16,7 +16,7 @@ export function usePet(id: number | undefined) {
         queryKey: ['pet', id],
         queryFn: () => petsService.getPetById(id!),
         enabled: !!id,
-        staleTime: 5 * 60 * 1000
+        staleTime: 30 * 1000 // Reduced from 5 min to ensure faster refreshes
     });
 }
 

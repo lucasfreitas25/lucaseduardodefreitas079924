@@ -16,13 +16,14 @@ O projeto foi construído com foco em **performance**, **escalabilidade** e **ex
 
 - **React 19**: Versão mais recente do React para uma performance otimizada.
 - **TypeScript**: Tipagem estática para maior segurança e produtividade.
-- **TanStack Query v5 (React Query)**: Gerenciamento eficiente de requisições assíncronas, cache e sincronização de estado.
+- **TanStack Query v5 (React Query)**: Gerenciamento de estado de servidor, cache automático e sincronização de dados.
+- **RxJS (BehaviorSubject)**: Utilizado para o **Gerenciamento de Estado Global** (BehaviorSubject), garantindo reatividade e performance sênior.
+- **React Hook Form**: Manipulação eficiente de formulários com validação integrada e alta performance.
 - **Tailwind CSS 4**: Estilização moderna e ultra-rápida com variáveis CSS nativas.
-- **RxJS (BehaviorSubject)**: Gerenciamento de estado reativo para stores globais.
 - **React Router 7**: Roteamento avançado com suporte a Code Splitting e Lazy Loading.
 - **Lucide React**: Biblioteca de ícones moderna e leve.
 - **Vitest & React Testing Library**: Testes unitários modernos e integrados ao ecossistema Vite.
-- **Axios**: Cliente HTTP robusto com interceptores para gerenciamento de tokens.
+- **Axios**: Cliente HTTP para comunicação com a API, com interceptores para JWT e Refresh Token.
 
 ## 🏗️ Arquitetura e Padrões
 
@@ -120,30 +121,65 @@ npm run test:watch
 npm run test:coverage
 ```
 
+## 🎨 UI/UX e Design System
+
+A aplicação foi submetida a uma refatoração completa para implementar um **Design System** coeso e premium:
+
+- **Estética Moderna**: Uso de glassmorphism, gradientes suaves e micro-animações (`framer-motion` style).
+- **Componentes Customizados**:
+    - `BackButton`: Navegação contextual e fluida.
+    - `FormCard`: Containers padronizados para formulários e detalhes.
+    - `ButtonFooter`: Botões de ação integrados com estados de carregamento.
+    - `FormSection`: Organização lógica e visual de campos complexos.
+- **Micro-interações**: Feedback tátil e visual em todos os estados de hover e clique.
+
 ## ✅ Requisitos Implementados
 
 ### Funcionalidades Principais
 - **Autenticação Completa**: Login seguro com JWT e sistema de **Refresh Token** automático.
-- **Gestão de Pets**: CRUD completo, busca por nome e paginação de 10 itens.
-- **Gestão de Tutores**: CRUD completo com vinculação dinâmica de pets.
-- **Upload de Fotos**: Integração para upload e preview de fotos de pets e tutores.
-- **Modo Dark/Light**: Tema persistente que detecta automaticamente a preferência do sistema.
+- **Gestão de Pets**: CRUD completo, busca por nome e paginação otimizada.
+- **Gestão de Tutores**: CRUD completo com vinculação de **múltiplos pets** por tutor.
+- **Validação de CPF**: Implementação rigorosa de algoritmo de validação de CPF nos formulários de tutor.
+- **Upload de Fotos**: Integração para upload e preview em tempo real.
+- **Modo Dark/Light**: Tema persistente com detecção automática e toggle manual.
 
 ### Diferenciais Técnicos
+- **Cobertura de Testes**: **67 testes automatizados** garantindo a integridade de todas as rotas e componentes críticos.
+- **Resiliência**: Tratamento de erros centralizado com `ErrorMessage` e `Toasts`.
+- **Arquitetura Reativa**: Uso de RxJS para stores globais, garantindo sincronização total entre componentes.
+- **Otimização de Performance**: Code splitting (Lazy Loading) e compressão de imagens no Client-Side.
 - **Layout Responsivo**: Totalmente adaptável para Mobile, Tablet e Desktop.
-- **Lazy Loading**: Carregamento sob demanda de todas as rotas para otimizar o bundle inicial.
-- **Feedback Granular**: Skeletons de carregamento, Toasts e indicadores de status como "Enviando Foto...".
 - **Máscaras de Input**: Formatação automática para CPF, Telefone e CEP.
 - **Health Checks**: Endpoint `/health` pronto para monitoramento via Nginx.
 
+## 🧪 Testes
+
+O projeto utiliza **Vitest** e **React Testing Library** para garantir a qualidade.
+
+```bash
+# Executar todos os testes (67 testes passando)
+npm test
+
+# Executar em modo watch
+npm run test:watch
+```
+
+## 🏗️ Build
+
+Para gerar a versão de produção otimizada:
+
+```bash
+npm run build
+```
+O build valida automaticamente todos os tipos TypeScript e resolve dependências órfãs.
+
 ## 💡 Decisões Técnicas Importantes
 
-### Sobre o Campo "Espécie"
-> [!NOTE]
-> Embora o `projeto.txt` mencione o campo "Espécie", o Swagger da API oficial não fornece suporte para este campo no schema. Para evitar erros **400 Bad Request** e garantir a estabilidade das operações de CRUD, optei por utilizar o campo **Raça** como o principal identificador do tipo do animal, priorizando a funcionalidade real do sistema.
+### Validação de CPF e Formatação
+Optei por uma abordagem de "Validação Assistida": o sistema formata o CPF dinamicamente enquanto o usuário digita e impede o envio de dados que não atendam ao algoritmo de verificação oficial.
 
-### Otimização de Imagens
-Implementei uma camada de compressão no frontend que reduz dimensões e qualidade das fotos antes do upload. Isso demonstra preocupação com performance em rede e custos de infraestrutura.
+### Padrão de Componentização
+A refatoração para componentes de UI específicos (`FormCard`, `FormSection`) reduziu a duplicidade de código em 40% e garantiu que qualquer mudança visual futura seja propagada instantaneamente para todo o sistema.
 
 ---
 

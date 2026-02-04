@@ -1,16 +1,16 @@
-import { render, screen, waitFor, fireEvent } from '../../test/test-utils';
-import { TutorService } from '../../services/api/tutors_service';
-import { petsService } from '../../services/api/pets_service';
+import { render, screen, waitFor, fireEvent } from '../../../test/test-utils';
+import { TutorService } from '../../../services/api/tutors_service';
+import { petsService } from '../../../services/api/pets_service';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Route, Routes } from 'react-router-dom';
 import TutorEdit from './TutorEdit';
-import { tutorStore } from '../../store/UseTutorStore';
+import { tutorStore } from '../../../store/UseTutorStore';
 
-vi.mock('../../utils/imageUtils', () => ({
+vi.mock('../../../utils/imageUtils', () => ({
     compressImage: vi.fn((file) => Promise.resolve(file)),
 }));
 
-vi.mock('../../services/api/tutors_service', () => ({
+vi.mock('../../../services/api/tutors_service', () => ({
     TutorService: {
         getTutorById: vi.fn(),
         updateTutor: vi.fn(),
@@ -22,7 +22,7 @@ vi.mock('../../services/api/tutors_service', () => ({
     },
 }));
 
-vi.mock('../../services/api/pets_service', () => ({
+vi.mock('../../../services/api/pets_service', () => ({
     petsService: {
         getPets: vi.fn(),
     },
@@ -62,10 +62,10 @@ describe('TutorEdit', () => {
         );
 
         await waitFor(() => {
-            expect(screen.getByLabelText(/Nome do Tutor/i)).toBeDefined();
+            expect(screen.getByLabelText(/Nome Completo/i)).toBeDefined();
         }, { timeout: 3000 });
 
-        fireEvent.change(screen.getByLabelText(/Nome do Tutor/i), { target: { value: 'João Silva Updated' } });
+        fireEvent.change(screen.getByLabelText(/Nome Completo/i), { target: { value: 'João Silva Updated' } });
         fireEvent.click(screen.getByRole('button', { name: /Salvar Alterações/i }));
 
         await waitFor(() => {
@@ -87,7 +87,7 @@ describe('TutorEdit', () => {
         );
 
         await waitFor(() => {
-            expect(screen.getByLabelText(/Nome do Tutor/i)).toBeDefined();
+            expect(screen.getByLabelText(/Nome Completo/i)).toBeDefined();
         }, { timeout: 3000 });
 
         const file = new File(['hello'], 'hello.png', { type: 'image/png' });

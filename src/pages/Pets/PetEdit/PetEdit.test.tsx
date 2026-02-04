@@ -1,10 +1,10 @@
-import { render, screen, waitFor, fireEvent } from '../../test/test-utils';
-import { petsService } from '../../services/api/pets_service';
+import { render, screen, waitFor, fireEvent } from '../../../test/test-utils';
+import { petsService } from '../../../services/api/pets_service';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Route, Routes } from 'react-router-dom';
 import PetEdit from './PetEdit';
 
-vi.mock('../../services/api/pets_service', () => ({
+vi.mock('../../../services/api/pets_service', () => ({
     petsService: {
         getPetById: vi.fn(),
         updatePet: vi.fn(),
