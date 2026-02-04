@@ -4,7 +4,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import './index.css';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './lib/react-query';
-import ErrorBoundary from './components/ErrorBondarry/ErrorBoundary';
+import ErrorBoundary from './ErrorBoundary';
 
 function App() {
   return (

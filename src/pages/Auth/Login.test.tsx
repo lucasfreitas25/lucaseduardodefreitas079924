@@ -37,9 +37,9 @@ describe('Login Component', () => {
             </AuthProvider>
         );
 
-        expect(screen.getByLabelText(/usuário/i)).toBeInTheDocument();
-        expect(screen.getByLabelText(/senha/i)).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /entrar/i })).toBeInTheDocument();
+        expect(screen.getByLabelText(/usuário/i)).toBeDefined();
+        expect(screen.getByLabelText(/senha/i)).toBeDefined();
+        expect(screen.getByRole('button', { name: /entrar/i })).toBeDefined();
     });
 
     it('deve chamar o serviço de login com as credenciais corretas', async () => {
@@ -91,7 +91,8 @@ describe('Login Component', () => {
         fireEvent.click(screen.getByRole('button', { name: /entrar/i }));
 
         await waitFor(() => {
-            expect(screen.getByRole('alert')).toHaveTextContent('Falha no login');
+            const alert = screen.getByRole('alert');
+            expect(alert.textContent).toContain('Falha no login');
         });
     });
 
@@ -110,8 +111,9 @@ describe('Login Component', () => {
         fireEvent.click(screen.getByRole('button', { name: /entrar/i }));
 
         await waitFor(() => {
-            expect(screen.getByRole('button')).toHaveTextContent(/entrando/i);
-            expect(screen.getByRole('button')).toBeDisabled();
+            const button = screen.getByRole('button');
+            expect(button.textContent).toMatch(/entrando/i);
+            expect((button as HTMLButtonElement).disabled).toBe(true);
         });
     });
 });

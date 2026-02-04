@@ -1,23 +1,28 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 import { useAuth } from '../../contexts/AuthContext';
 import { Dog, PawPrint } from 'lucide-react';
+import type { LoginCredentials } from '../../types/auth';
 
 export default function Login() {
     const navigate = useNavigate();
     const { login } = useAuth();
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const {
+        register,
+        handleSubmit,
+        formState: { errors }
+    } = useForm<LoginCredentials>();
+
+    const onSubmit = async (data: LoginCredentials) => {
         setError('');
         setLoading(true);
 
         try {
-            await login({ username, password });
+            await login(data);
             navigate('/pets', { replace: true });
         } catch (err) {
             console.error(err);
@@ -54,7 +59,7 @@ export default function Login() {
                     </p>
                 </header>
 
-                <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+                <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     {error && (
                         <div role="alert" className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 p-4 rounded-xl text-sm text-center border-2 border-red-300 dark:border-red-800 animate-fade-in">
                             {error}
@@ -68,15 +73,15 @@ export default function Login() {
                             </label>
                             <input
                                 id="username"
-                                name="username"
                                 type="text"
                                 autoComplete="username"
-                                required
-                                className="appearance-none relative block w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 placeholder-gray-400 text-gray-900 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm"
+                                {...register('username', { required: 'Usuário é obrigatório' })}
+                                className={`appearance-none relative block w-full px-4 py-3 border-2 ${errors.username ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} placeholder-gray-400 text-gray-900 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm`}
                                 placeholder="Digite seu usuário (admin)"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
                             />
+                            {errors.username && (
+                                <p className="mt-1 text-xs text-red-500 font-medium">{errors.username.message}</p>
+                            )}
                         </div>
                         <div className="relative">
                             <label htmlFor="password" className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
@@ -84,15 +89,15 @@ export default function Login() {
                             </label>
                             <input
                                 id="password"
-                                name="password"
                                 type="password"
                                 autoComplete="current-password"
-                                required
-                                className="appearance-none relative block w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 placeholder-gray-400 text-gray-900 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm"
+                                {...register('password', { required: 'Senha é obrigatória' })}
+                                className={`appearance-none relative block w-full px-4 py-3 border-2 ${errors.password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} placeholder-gray-400 text-gray-900 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm`}
                                 placeholder="Digite sua senha"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
                             />
+                            {errors.password && (
+                                <p className="mt-1 text-xs text-red-500 font-medium">{errors.password.message}</p>
+                            )}
                         </div>
                     </fieldset>
 

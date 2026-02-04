@@ -22,10 +22,15 @@ const VALID_CPF = '529.982.247-25';
 
 import { tutorStore } from '../../store/UseTutorStore';
 
+vi.mock('../../utils/imageUtils', () => ({
+    compressImage: vi.fn((file) => Promise.resolve(file)),
+}));
+
 describe('TutorAdd', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         tutorStore.reset();
+        vi.mocked(petsService.getPets).mockResolvedValue({ items: [], total: 0, page: 1, per_page: 10, total_pages: 0 });
     });
 
     it('deve formatar CPF e Telefone enquanto o usuário digita', async () => {
@@ -98,7 +103,7 @@ describe('TutorAdd', () => {
         fireEvent.submit(form!);
 
         await waitFor(() => {
-            expect(screen.getByText('Email inválido.')).toBeInTheDocument();
+            expect(screen.getByText('Email inválido')).toBeDefined();
         });
     });
 
@@ -116,7 +121,7 @@ describe('TutorAdd', () => {
         fireEvent.submit(form!);
 
         await waitFor(() => {
-            expect(screen.getByText('CPF inválido.')).toBeInTheDocument();
+            expect(screen.getByText('CPF inválido')).toBeDefined();
         });
     });
 
@@ -140,7 +145,7 @@ describe('TutorAdd', () => {
 
         // Seleciona o pet no dropdown
         await waitFor(() => {
-            expect(screen.getByText('Rex (SRD)')).toBeInTheDocument();
+            expect(screen.getByText('Rex (SRD)')).toBeDefined();
         });
         fireEvent.change(screen.getByLabelText(/Vincular um Pet/i), { target: { value: '10' } });
 

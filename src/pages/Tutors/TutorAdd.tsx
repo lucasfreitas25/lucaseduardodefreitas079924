@@ -1,90 +1,76 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Dog, Save } from 'lucide-react';
+import { ArrowLeft, Save, PawPrint, User } from 'lucide-react';
 import { useCreateTutor } from '../../hooks/queries/useTutor';
 import { usePets } from '../../hooks/queries/usePet';
 import { PhotoUpload } from '../../components/Common/PhotoUpload';
-import { validarEmail, validarCpf } from '../../utils/validators';
-import { formatCPF, formatTelefone } from '../../utils/formatters';
+import { validarEmail } from '../../utils/validarEmail';
+import { validarCpf } from '../../utils/validarCpf';
+import { formatCPF } from '../../utils/formatCPF';
+import { formatTelefone } from '../../utils/formatTelefone';
+import { useForm } from 'react-hook-form';
+
+interface TutorForm {
+    nome: string;
+    email: string;
+    cpf: string;
+    telefone: string;
+    endereco: string;
+    foto: File | null;
+    petId: string;
+};
 
 export default function TutorAdd() {
     const navigate = useNavigate();
     const { mutateAsync: createTutor, isPending, error: mutationError } = useCreateTutor();
-    const [validationError, setValidationError] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
-
-    const loading = isPending || isSaving;
     const { data: petsData } = usePets(1, '');
 
-    const [formData, setFormData] = useState<{
-        nome: string;
-        email: string;
-        cpf: string;
-        telefone: string;
-        endereco: string,
-        foto: File | null;
-        petId: string;
-    }>({
-        nome: '',
-        email: '',
-        cpf: '',
-        telefone: '',
-        endereco: '',
-        foto: null,
-        petId: '',
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        formState: { errors }
+    } = useForm<TutorForm>({
+        defaultValues: {
+            nome: '',
+            email: '',
+            cpf: '',
+            telefone: '',
+            endereco: '',
+            foto: null,
+            petId: ''
+        }
     });
 
-    const error = validationError || (mutationError as any)?.message;
+    const loading = isPending || isSaving;
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        let formattedValue = value;
+    const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setValue('cpf', formatCPF(e.target.value));
+    };
 
-        if (name === 'cpf') {
-            formattedValue = formatCPF(value);
-        } else if (name === 'telefone') {
-            formattedValue = formatTelefone(value);
-        }
-
-        setFormData(prev => ({ ...prev, [name]: formattedValue }));
+    const handleTelefoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setValue('telefone', formatTelefone(e.target.value));
     };
 
     const handlePhotoSelect = (file: File | null) => {
-        setFormData(prev => ({ ...prev, foto: file }));
+        setValue('foto', file);
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setValidationError(null);
-
+    const onSubmit = async (data: TutorForm) => {
         try {
-            if (!formData.nome || !formData.telefone || !formData.endereco || !formData.email || !formData.cpf) {
-                setValidationError('Por favor, preencha todos os campos obrigatórios.');
-                return;
-            }
-
-            if (!validarEmail(formData.email)) {
-                setValidationError('Email inválido.');
-                return;
-            }
-
-            if (!validarCpf(formData.cpf)) {
-                setValidationError('CPF inválido.');
-                return;
-            }
-
-            const cleanCPF = formData.cpf ? String(formData.cpf).replace(/\D/g, '') : '';
-            const cleanTelefone = formData.telefone ? String(formData.telefone).replace(/\D/g, '') : '';
+            const cleanCPF = data.cpf ? String(data.cpf).replace(/\D/g, '') : '';
+            const cleanTelefone = data.telefone ? String(data.telefone).replace(/\D/g, '') : '';
 
             setIsSaving(true);
             await createTutor({
-                nome: formData.nome,
-                email: formData.email,
+                nome: data.nome,
+                email: data.email,
                 cpf: cleanCPF,
                 telefone: cleanTelefone,
-                endereco: formData.endereco,
-                foto: (formData.foto as any) || undefined,
-                petId: formData.petId || undefined
+                endereco: data.endereco,
+                foto: (data.foto as any) || undefined,
+                petId: data.petId || undefined
             });
 
             navigate('/tutors');
@@ -96,34 +82,41 @@ export default function TutorAdd() {
     };
 
     return (
-        <main className="max-w-2xl mx-auto space-y-6 animate-fade-in">
+        <main className="max-w-2xl mx-auto space-y-6 animate-fade-in relative">
+            <div className="absolute -top-20 -left-20 opacity-10 dark:opacity-5 animate-float pointer-events-none">
+                <PawPrint className="w-32 h-32 text-orange-600" />
+            </div>
+            <div className="absolute -bottom-20 -right-20 opacity-10 dark:opacity-5 animate-float pointer-events-none" style={{ animationDelay: '1s' }}>
+                <PawPrint className="w-40 h-40 text-cyan-600" />
+            </div>
+
             <button
                 onClick={() => navigate(-1)}
-                className="flex items-center text-gray-600 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all font-medium group"
+                className="flex items-center text-gray-600 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all font-medium group relative z-10"
                 disabled={loading}
             >
                 <ArrowLeft className="h-5 w-5 mr-2 group-hover:-translate-x-1 transition-transform" />
                 Voltar
             </button>
 
-            <article className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border-2 border-gray-200 dark:border-gray-700 p-8">
+            <article className="glass rounded-2xl shadow-xl border-2 border-orange-200 dark:border-orange-900 p-8 relative z-10">
                 <header className="flex items-center gap-4 mb-8 pb-6 border-b-2 border-gradient-to-r from-orange-200 to-cyan-200 dark:from-orange-900 dark:to-cyan-900">
                     <div className="h-14 w-14 bg-gradient-to-br from-orange-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg transform hover:scale-110 transition-transform">
-                        <Dog className="h-8 w-8 text-white" />
+                        <User className="h-8 w-8 text-white" />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-cyan-600 dark:from-orange-400 dark:to-cyan-400 bg-clip-text text-transparent">Adicionar Novo Tutor</h1>
+                        <h1 className="text-3xl font-bold gradient-text">Adicionar Novo Tutor</h1>
                         <p className="text-gray-600 dark:text-gray-300 mt-1">Preencha as informações do tutor 👤</p>
                     </div>
                 </header>
 
-                {error && (
+                {mutationError && (
                     <div role="alert" className="mb-6 bg-red-100 dark:bg-red-900/30 border-2 border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 p-4 rounded-xl animate-fade-in">
-                        {error}
+                        {(mutationError as any)?.message || 'Erro ao criar tutor'}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                     <div className="flex justify-center mb-8">
                         <PhotoUpload
                             onPhotoSelect={handlePhotoSelect}
@@ -139,15 +132,12 @@ export default function TutorAdd() {
                             <input
                                 type="text"
                                 id="nome"
-                                name="nome"
-                                value={formData.nome}
-                                onChange={handleChange}
-                                required
-                                maxLength={100}
+                                {...register('nome', { required: 'Nome é obrigatório', maxLength: 100 })}
                                 disabled={loading}
-                                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all disabled:opacity-50"
+                                className={`w-full px-4 py-3 rounded-xl border-2 ${errors.nome ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all disabled:opacity-50`}
                                 placeholder="Ex: João da Silva"
                             />
+                            {errors.nome && <p className="mt-1 text-xs text-red-500">{errors.nome.message}</p>}
                         </div>
 
                         <div>
@@ -157,14 +147,15 @@ export default function TutorAdd() {
                             <input
                                 type="email"
                                 id="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                required
+                                {...register('email', {
+                                    required: 'Email é obrigatório',
+                                    validate: v => validarEmail(v) || 'Email inválido'
+                                })}
                                 disabled={loading}
-                                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all disabled:opacity-50"
+                                className={`w-full px-4 py-3 rounded-xl border-2 ${errors.email ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all disabled:opacity-50`}
                                 placeholder="joao@example.com"
                             />
+                            {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
                         </div>
 
                         <div>
@@ -174,15 +165,17 @@ export default function TutorAdd() {
                             <input
                                 type="text"
                                 id="cpf"
-                                name="cpf"
-                                value={formData.cpf}
-                                onChange={handleChange}
-                                required
+                                {...register('cpf', {
+                                    required: 'CPF é obrigatório',
+                                    validate: v => validarCpf(v) || 'CPF inválido',
+                                    onChange: handleCpfChange
+                                })}
                                 maxLength={14}
                                 disabled={loading}
-                                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all disabled:opacity-50"
+                                className={`w-full px-4 py-3 rounded-xl border-2 ${errors.cpf ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all disabled:opacity-50`}
                                 placeholder="000.000.000-00"
                             />
+                            {errors.cpf && <p className="mt-1 text-xs text-red-500">{errors.cpf.message}</p>}
                         </div>
 
                         <div>
@@ -192,15 +185,16 @@ export default function TutorAdd() {
                             <input
                                 type="text"
                                 id="telefone"
-                                name="telefone"
-                                value={formData.telefone}
-                                onChange={handleChange}
-                                required
+                                {...register('telefone', {
+                                    required: 'Telefone é obrigatório',
+                                    onChange: handleTelefoneChange
+                                })}
                                 maxLength={15}
                                 disabled={loading}
-                                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all disabled:opacity-50"
+                                className={`w-full px-4 py-3 rounded-xl border-2 ${errors.telefone ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all disabled:opacity-50`}
                                 placeholder="(00) 00000-0000"
                             />
+                            {errors.telefone && <p className="mt-1 text-xs text-red-500">{errors.telefone.message}</p>}
                         </div>
 
                         <div>
@@ -210,15 +204,12 @@ export default function TutorAdd() {
                             <input
                                 type="text"
                                 id="endereco"
-                                name="endereco"
-                                value={formData.endereco}
-                                onChange={handleChange}
-                                required
-                                maxLength={250}
+                                {...register('endereco', { required: 'Endereço é obrigatório', maxLength: 250 })}
                                 disabled={loading}
-                                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all disabled:opacity-50"
+                                className={`w-full px-4 py-3 rounded-xl border-2 ${errors.endereco ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all disabled:opacity-50`}
                                 placeholder="Rua Exemplo, 123"
                             />
+                            {errors.endereco && <p className="mt-1 text-xs text-red-500">{errors.endereco.message}</p>}
                         </div>
 
                         <div className="md:col-span-2">
@@ -227,9 +218,7 @@ export default function TutorAdd() {
                             </label>
                             <select
                                 id="petId"
-                                name="petId"
-                                value={formData.petId}
-                                onChange={handleChange}
+                                {...register('petId')}
                                 disabled={loading}
                                 className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all disabled:opacity-50"
                             >
@@ -246,7 +235,7 @@ export default function TutorAdd() {
                         </div>
                     </fieldset>
 
-                    <footer className="flex justify-center md:justify-end pt-6 border-t-2 border-gray-200 dark:border-gray-700">
+                    <footer className="flex justify-center md:justify-end pt-6 border-t-2 border-orange-100 dark:border-orange-900">
                         <button
                             type="submit"
                             disabled={loading}
@@ -255,7 +244,7 @@ export default function TutorAdd() {
                             {loading ? (
                                 <>
                                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                                    {formData.foto ? 'Enviando Foto...' : 'Salvando...'}
+                                    Salvando...
                                 </>
                             ) : (
                                 <>

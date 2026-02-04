@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { validarEmail, validarCpf } from './validators';
-import { formatCPF, formatTelefone } from './formatters';
+import { validarEmail } from './validarEmail';
+import { validarCpf } from './validarCpf';
+import { formatCPF } from './formatCPF';
+import { formatTelefone } from './formatTelefone';
 
 describe('Validators', () => {
     describe('validarEmail', () => {
@@ -21,7 +23,7 @@ describe('Validators', () => {
             // CPFs gerados para teste
             expect(validarCpf('123.456.789-09')).toBe(true);
             expect(validarCpf('529.982.247-25')).toBe(true);
-            expect(validarCpf('12345678909')).toBe(true); // Sem pontos
+            expect(validarCpf('12345678909')).toBe(true);
         });
 
         it('deveria retornar false para CPFs com todos os dígitos iguais', () => {

@@ -1,43 +1,58 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Dog, Save } from 'lucide-react';
+import { ArrowLeft, Dog, Save, PawPrint } from 'lucide-react';
 import { usePet, useUpdatePet } from '../../hooks/queries/usePet';
 import { petsService } from '../../services/api/pets_service';
 import { PhotoUpload } from '../../components/Common/PhotoUpload';
+import { useForm } from 'react-hook-form';
+
+interface PetFormData {
+    nome: string;
+    raca: string;
+    idade: string;
+    foto: File | null | { url: string; id?: number };
+}
 
 export default function PetEdit() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
-    const numericId = id ? Number(id) : undefined;
-    const { data: selectedPet, isLoading: loadingDetails, error: loadError } = usePet(numericId);
+    const petId = id ? Number(id) : undefined;
+    const { data: selectedPet, isLoading: loadingDetails, error: loadError } = usePet(petId);
     const { mutateAsync: updatePet, isPending: isUpdating, error: updateError } = useUpdatePet();
+    const [isSaving, setIsSaving] = useState(false);
 
-    const [formData, setFormData] = useState<{
-        nome: string;
-        raca: string;
-        idade: string;
-        foto: File | null | { url: string; id?: number };
-    }>({
-        nome: '',
-        raca: '',
-        idade: '',
-        foto: null,
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        reset,
+        formState: { errors },
+        watch
+    } = useForm<PetFormData>({
+        defaultValues: {
+            nome: '',
+            raca: '',
+            idade: '',
+            foto: null
+        }
     });
+
+    const currentFoto = watch('foto');
 
     useEffect(() => {
         if (selectedPet) {
-            setFormData({
+            reset({
                 nome: selectedPet.nome,
                 raca: selectedPet.raca,
                 idade: String(selectedPet.idade),
                 foto: selectedPet.foto || null,
             });
         }
-    }, [selectedPet]);
+    }, [selectedPet, reset]);
 
     const handlePhotoSelect = (file: File | null) => {
-        setFormData(prev => ({ ...prev, foto: file }));
+        setValue('foto', file);
     };
 
     const handlePhotoDelete = async () => {
@@ -49,7 +64,7 @@ export default function PetEdit() {
         try {
             if (confirm('Tem certeza que deseja remover a foto deste pet?')) {
                 await petsService.deletePetPhoto(Number(id), photoId);
-                setFormData(prev => ({ ...prev, foto: null }));
+                setValue('foto', null);
             }
         } catch (err) {
             console.error('Error deleting photo:', err);
@@ -57,94 +72,99 @@ export default function PetEdit() {
         }
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const onSubmit = async (data: PetFormData) => {
         if (!id) return;
 
         try {
+            setIsSaving(true);
             await updatePet({
                 id: Number(id),
                 data: {
                     id: Number(id),
-                    nome: formData.nome,
-                    raca: formData.raca,
-                    idade: Number(formData.idade),
-                    foto: formData.foto instanceof File ? formData.foto : undefined
+                    nome: data.nome,
+                    raca: data.raca,
+                    idade: Number(data.idade),
+                    foto: data.foto instanceof File ? data.foto : undefined
                 }
             });
 
             navigate('/pets');
         } catch (err: any) {
             console.error('Error updating pet:', err);
+        } finally {
+            setIsSaving(false);
         }
     };
+
+    const loading = loadingDetails || isUpdating || isSaving;
 
     if (loadingDetails) {
         return (
             <div className="flex justify-center items-center min-h-[50vh]">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
             </div>
         );
     }
 
     return (
-        <main className="max-w-2xl mx-auto space-y-6">
+        <main className="max-w-2xl mx-auto space-y-6 animate-fade-in relative">
+            <div className="absolute -top-20 -left-20 opacity-10 dark:opacity-5 animate-float pointer-events-none">
+                <PawPrint className="w-32 h-32 text-orange-600" />
+            </div>
+            <div className="absolute -bottom-20 -right-20 opacity-10 dark:opacity-5 animate-float pointer-events-none" style={{ animationDelay: '1s' }}>
+                <PawPrint className="w-40 h-40 text-cyan-600" />
+            </div>
+
             <button
                 onClick={() => navigate(-1)}
-                className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                disabled={isUpdating}
+                className="flex items-center text-gray-600 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all font-medium group relative z-10"
+                disabled={loading}
             >
-                <ArrowLeft className="h-5 w-5 mr-2" />
+                <ArrowLeft className="h-5 w-5 mr-2 group-hover:-translate-x-1 transition-transform" />
                 Voltar
             </button>
 
-            <article className="bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8">
-                <header className="flex items-center gap-4 mb-8">
-                    <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                        <Dog className="h-6 w-6 text-blue-600 dark:text-blue-300" />
+            <article className="glass rounded-2xl shadow-xl border-2 border-orange-200 dark:border-orange-900 p-8 relative z-10">
+                <header className="flex items-center gap-4 mb-8 pb-6 border-b-2 border-gradient-to-r from-orange-200 to-cyan-200 dark:from-orange-900 dark:to-cyan-900">
+                    <div className="h-14 w-14 bg-gradient-to-br from-orange-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg transform hover:scale-110 transition-transform">
+                        <Dog className="h-8 w-8 text-white" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Editar Pet</h1>
-                        <p className="text-gray-500 dark:text-gray-400">Atualize as informações do animal</p>
+                        <h1 className="text-3xl font-bold gradient-text">Editar Pet</h1>
+                        <p className="text-gray-600 dark:text-gray-300 mt-1">Atualize as informações do animal 🐾</p>
                     </div>
                 </header>
 
                 {(updateError || loadError) && (
-                    <div role="alert" className="mb-6 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-lg">
+                    <div role="alert" className="mb-6 bg-red-100 dark:bg-red-900/30 border-2 border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 p-4 rounded-xl animate-fade-in">
                         {(updateError as any)?.message || (loadError as any)?.message || 'Erro ao processar solicitação'}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                     <div className="flex justify-center mb-8">
                         <PhotoUpload
                             onPhotoSelect={handlePhotoSelect}
-                            currentPhotoUrl={(formData.foto as any)?.url}
-                            onPhotoDelete={(formData.foto as any)?.url ? handlePhotoDelete : undefined}
+                            currentPhotoUrl={(currentFoto as any)?.url}
+                            onPhotoDelete={(currentFoto as any)?.url ? handlePhotoDelete : undefined}
                             label="Foto do Pet"
                         />
                     </div>
-                    <fieldset className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="">
+
+                    <fieldset className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
                             <label htmlFor="nome" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Nome do Pet *
                             </label>
                             <input
                                 type="text"
                                 id="nome"
-                                name="nome"
-                                value={formData.nome}
-                                onChange={handleChange}
-                                required
-                                disabled={isUpdating}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-50"
+                                {...register('nome', { required: 'Nome é obrigatório', maxLength: 50 })}
+                                disabled={loading}
+                                className={`w-full px-4 py-3 rounded-xl border-2 ${errors.nome ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all disabled:opacity-50`}
+                                placeholder="Ex: Rex"
                             />
+                            {errors.nome && <p className="mt-1 text-xs text-red-500">{errors.nome.message}</p>}
                         </div>
 
                         <div>
@@ -154,13 +174,12 @@ export default function PetEdit() {
                             <input
                                 type="text"
                                 id="raca"
-                                name="raca"
-                                value={formData.raca}
-                                onChange={handleChange}
-                                required
-                                disabled={isUpdating}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-50"
+                                {...register('raca', { required: 'Raça é obrigatória', maxLength: 30 })}
+                                disabled={loading}
+                                className={`w-full px-4 py-3 rounded-xl border-2 ${errors.raca ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all disabled:opacity-50`}
+                                placeholder="Ex: Golden Retriever"
                             />
+                            {errors.raca && <p className="mt-1 text-xs text-red-500">{errors.raca.message}</p>}
                         </div>
 
                         <div>
@@ -170,27 +189,25 @@ export default function PetEdit() {
                             <input
                                 type="number"
                                 id="idade"
-                                name="idade"
-                                value={formData.idade}
-                                onChange={handleChange}
-                                required
-                                min="0"
-                                disabled={isUpdating}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-50"
+                                {...register('idade', { required: 'Idade é obrigatória', min: { value: 0, message: 'Idade não pode ser negativa' } })}
+                                disabled={loading}
+                                className={`w-full px-4 py-3 rounded-xl border-2 ${errors.idade ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all disabled:opacity-50`}
+                                placeholder="Ex: 3"
                             />
+                            {errors.idade && <p className="mt-1 text-xs text-red-500">{errors.idade.message}</p>}
                         </div>
                     </fieldset>
 
-                    <footer className="flex justify-center md:justify-end pt-6 border-t border-gray-100 dark:border-gray-800">
+                    <footer className="flex justify-center md:justify-end pt-6 border-t-2 border-orange-100 dark:border-orange-900">
                         <button
                             type="submit"
-                            disabled={isUpdating}
-                            className="flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={loading}
+                            className="flex items-center px-8 py-3.5 bg-gradient-to-r from-orange-500 to-cyan-500 hover:from-orange-600 hover:to-cyan-600 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {isUpdating ? (
+                            {loading ? (
                                 <>
                                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                                    {formData.foto instanceof File ? 'Enviando Foto...' : 'Salvando...'}
+                                    Salvando...
                                 </>
                             ) : (
                                 <>

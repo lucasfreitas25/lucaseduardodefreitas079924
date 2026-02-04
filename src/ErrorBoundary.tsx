@@ -1,5 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
-import { logger } from "../../services/logger";
+import { logger } from "./services/logger";
 import { ErrorFallback } from "./ErrorFallback";
 
 interface Props {

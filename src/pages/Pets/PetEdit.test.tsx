@@ -9,13 +9,15 @@ vi.mock('../../services/api/pets_service', () => ({
         getPetById: vi.fn(),
         updatePet: vi.fn(),
         uploadPetPhoto: vi.fn(),
-        deletePetPhoto: vi.fn()
+        deletePetPhoto: vi.fn(),
+        getPets: vi.fn(),
     },
 }));
 
 describe('PetEdit', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        vi.mocked(petsService.getPets).mockResolvedValue({ items: [], total: 0, page: 1, per_page: 10, total_pages: 0 });
     });
 
     it('deve carregar os dados do pet e permitir a edição', async () => {
@@ -38,7 +40,8 @@ describe('PetEdit', () => {
         );
 
         await waitFor(() => {
-            expect(screen.getByLabelText(/Nome do Pet/i)).toHaveValue('Rex');
+            const input = screen.getByLabelText(/Nome do Pet/i) as HTMLInputElement;
+            expect(input.value).toBe('Rex');
         });
 
         fireEvent.change(screen.getByLabelText(/Nome do Pet/i), { target: { value: 'Rex Updated' } });
@@ -50,7 +53,7 @@ describe('PetEdit', () => {
                 raca: 'SRD',
                 idade: 3
             }));
-        });
+        }, { timeout: 3000 });
     });
 
     it('deve fazer upload de uma nova foto se selecionada', async () => {
@@ -83,7 +86,7 @@ describe('PetEdit', () => {
         await waitFor(() => {
             expect(petsService.updatePet).toHaveBeenCalled();
             expect(petsService.uploadPetPhoto).toHaveBeenCalledWith(1, file);
-        });
+        }, { timeout: 3000 });
     });
 
     it('exibe erro se o carregamento do pet falhar', async () => {

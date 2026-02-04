@@ -1,15 +1,15 @@
 import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { MainLayout } from './components/Layout/MainLayout';
+import { MainLayout } from './MainLayout';
+import Login from './pages/Auth/Login';
+import PetAdd from './pages/Pets/PetAdd';
+import TutorAdd from './pages/Tutors/TutorAdd';
 
-const PetList = lazy(() => import('./pages/Pets/PetList'));
 const PetDetails = lazy(() => import('./pages/Pets/PetDetails'));
 const PetEdit = lazy(() => import('./pages/Pets/PetEdit'));
-const PetAdd = lazy(() => import('./pages/Pets/PetAdd'));
-const TutorList = lazy(() => import('./pages/Tutors/TutorList'));
-const Login = lazy(() => import('./pages/Auth/Login'));
-const TutorAdd = lazy(() => import('./pages/Tutors/TutorAdd'));
 const TutorEdit = lazy(() => import('./pages/Tutors/TutorEdit'));
+const PetIndex = lazy(() => import('./pages/Pets/PetIndex'));
+const TutorIndex = lazy(() => import('./pages/Tutors/TutorIndex'));
 
 import { PrivateRoute } from './components/Auth/PrivateRoute';
 
@@ -24,9 +24,7 @@ export const router = createBrowserRouter([
     {
         path: '/login',
         element: (
-            <Suspense fallback={<PageLoader />}>
-                <Login />
-            </Suspense>
+            <Login />
         ),
     },
     {
@@ -44,16 +42,14 @@ export const router = createBrowserRouter([
                         path: 'pets',
                         element: (
                             <Suspense fallback={<PageLoader />}>
-                                <PetList />
+                                <PetIndex />
                             </Suspense>
                         ),
                     },
                     {
                         path: 'pets/new',
                         element: (
-                            <Suspense fallback={<PageLoader />}>
-                                <PetAdd />
-                            </Suspense>
+                            <PetAdd />
                         ),
                     },
                     {
@@ -76,16 +72,14 @@ export const router = createBrowserRouter([
                         path: 'tutors',
                         element: (
                             <Suspense fallback={<PageLoader />}>
-                                <TutorList />
+                                <TutorIndex />
                             </Suspense>
                         ),
                     },
                     {
                         path: 'tutors/new',
                         element: (
-                            <Suspense fallback={<PageLoader />}>
-                                <TutorAdd />
-                            </Suspense>
+                            <TutorAdd />
                         ),
                     },
                     {

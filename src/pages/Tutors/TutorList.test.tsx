@@ -1,5 +1,5 @@
 import { render, screen, waitFor, fireEvent } from '../../test/test-utils';
-import TutorList from './TutorList';
+import TutorList from './TutorIndex';
 import { TutorService } from '../../services/api/tutors_service';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 

@@ -3,16 +3,22 @@ import { petsService } from '../../services/api/pets_service';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import PetAdd from './PetAdd';
 
+vi.mock('../../utils/imageUtils', () => ({
+    compressImage: vi.fn((file) => Promise.resolve(file)),
+}));
+
 vi.mock('../../services/api/pets_service', () => ({
     petsService: {
         createPet: vi.fn(),
-        uploadPetPhoto: vi.fn()
+        uploadPetPhoto: vi.fn(),
+        getPets: vi.fn()
     },
 }));
 
 describe('PetAdd', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        vi.mocked(petsService.getPets).mockResolvedValue({ items: [], total: 0, page: 1, per_page: 10, total_pages: 0 });
     });
 
     it('deve criar um pet ao clicar no botão de salvar', async () => {
@@ -38,7 +44,7 @@ describe('PetAdd', () => {
                 raca: 'SRD',
                 idade: 3
             });
-        });
+        }, { timeout: 3000 });
     });
 
     it('deve fazer upload da foto do pet se uma foto for selecionada', async () => {
@@ -81,7 +87,8 @@ describe('PetAdd', () => {
         fireEvent.click(screen.getByRole('button', { name: /Salvar Pet/i }));
 
         await waitFor(() => {
-            expect(screen.getByRole('alert')).toHaveTextContent('Erro na API');
-        });
+            const alert = screen.getByRole('alert');
+            expect(alert.textContent).toContain('Erro na API');
+        }, { timeout: 3000 });
     });
 });

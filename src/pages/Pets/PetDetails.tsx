@@ -6,8 +6,8 @@ export default function PetDetails() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
-    const numericId = id ? Number(id) : undefined;
-    const { data: selectedPet, isLoading, error } = usePet(numericId);
+    const petId = id ? Number(id) : undefined;
+    const { data: selectedPet, isLoading, error } = usePet(petId);
 
     if (isLoading) {
         return (

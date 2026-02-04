@@ -3,54 +3,48 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Dog, Save } from 'lucide-react';
 import { useCreatePet } from '../../hooks/queries/usePet';
 import { PhotoUpload } from '../../components/Common/PhotoUpload';
+import { useForm } from 'react-hook-form';
+
+interface PetFormData {
+    nome: string;
+    raca: string;
+    idade: string;
+    foto: File | null;
+}
 
 export default function PetAdd() {
     const navigate = useNavigate();
     const { mutateAsync: createPet, isPending, error: mutationError } = useCreatePet();
-    const [validationError, setValidationError] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
+
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        formState: { errors }
+    } = useForm<PetFormData>({
+        defaultValues: {
+            nome: '',
+            raca: '',
+            idade: '',
+            foto: null
+        }
+    });
 
     const loading = isPending || isSaving;
 
-    const [formData, setFormData] = useState<{
-        nome: string;
-        raca: string;
-        idade: string;
-        foto: File | null;
-        tutor_id: string;
-    }>({
-        nome: '',
-        raca: '',
-        idade: '',
-        foto: null,
-        tutor_id: ''
-    });
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
     const handlePhotoSelect = (file: File | null) => {
-        setFormData(prev => ({ ...prev, foto: file }));
+        setValue('foto', file);
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setValidationError(null);
-
+    const onSubmit = async (data: PetFormData) => {
         try {
-            if (!formData.nome || !formData.raca || !formData.idade) {
-                alert('Por favor, preencha todos os campos obrigatórios.');
-                return;
-            }
-
             setIsSaving(true);
             await createPet({
-                nome: formData.nome,
-                raca: formData.raca,
-                idade: Number(formData.idade),
-                foto: (formData.foto as any) || undefined
+                nome: data.nome,
+                raca: data.raca,
+                idade: Number(data.idade),
+                foto: data.foto || undefined
             } as any);
 
             navigate('/pets');
@@ -83,13 +77,13 @@ export default function PetAdd() {
                     </div>
                 </header>
 
-                {(mutationError || validationError) && (
+                {(mutationError) && (
                     <div role="alert" className="mb-6 bg-red-100 dark:bg-red-900/30 border-2 border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 p-4 rounded-xl animate-fade-in">
-                        {validationError || (mutationError as any)?.message || 'Erro ao criar pet'}
+                        {(mutationError as any)?.message || 'Erro ao criar pet'}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-6 ">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                     <div className="flex justify-center mb-8">
                         <PhotoUpload
                             onPhotoSelect={handlePhotoSelect}
@@ -97,23 +91,20 @@ export default function PetAdd() {
                         />
                     </div>
 
-                    <fieldset className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 ">
-                        <div className="">
+                    <fieldset className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
                             <label htmlFor="nome" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Nome do Pet *
                             </label>
                             <input
                                 type="text"
                                 id="nome"
-                                name="nome"
-                                value={formData.nome}
-                                onChange={handleChange}
-                                required
-                                maxLength={50}
+                                {...register('nome', { required: 'Nome é obrigatório', maxLength: 50 })}
                                 disabled={loading}
-                                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all disabled:opacity-50"
+                                className={`w-full px-4 py-3 rounded-xl border-2 ${errors.nome ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all disabled:opacity-50`}
                                 placeholder="Ex: Rex"
                             />
+                            {errors.nome && <p className="mt-1 text-xs text-red-500">{errors.nome.message}</p>}
                         </div>
 
                         <div>
@@ -123,15 +114,12 @@ export default function PetAdd() {
                             <input
                                 type="text"
                                 id="raca"
-                                name="raca"
-                                value={formData.raca}
-                                onChange={handleChange}
-                                required
-                                maxLength={30}
+                                {...register('raca', { required: 'Raça é obrigatória', maxLength: 30 })}
                                 disabled={loading}
-                                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all disabled:opacity-50"
+                                className={`w-full px-4 py-3 rounded-xl border-2 ${errors.raca ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all disabled:opacity-50`}
                                 placeholder="Ex: Golden Retriever"
                             />
+                            {errors.raca && <p className="mt-1 text-xs text-red-500">{errors.raca.message}</p>}
                         </div>
 
                         <div>
@@ -141,15 +129,12 @@ export default function PetAdd() {
                             <input
                                 type="number"
                                 id="idade"
-                                name="idade"
-                                value={formData.idade}
-                                onChange={handleChange}
-                                required
-                                min="0"
+                                {...register('idade', { required: 'Idade é obrigatória', min: { value: 0, message: 'Idade não pode ser negativa' } })}
                                 disabled={loading}
-                                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all disabled:opacity-50"
+                                className={`w-full px-4 py-3 rounded-xl border-2 ${errors.idade ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all disabled:opacity-50`}
                                 placeholder="Ex: 3"
                             />
+                            {errors.idade && <p className="mt-1 text-xs text-red-500">{errors.idade.message}</p>}
                         </div>
                     </fieldset>
 
@@ -162,7 +147,7 @@ export default function PetAdd() {
                             {loading ? (
                                 <>
                                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                                    {formData.foto ? 'Enviando Foto...' : 'Salvando...'}
+                                    Salvando...
                                 </>
                             ) : (
                                 <>

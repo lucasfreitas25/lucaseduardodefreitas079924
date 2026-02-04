@@ -1,5 +1,5 @@
 import { render, screen, waitFor, fireEvent } from '../../test/test-utils';
-import PetList from './PetList';
+import PetList from './PetIndex';
 import { petsService } from '../../services/api/pets_service';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
