@@ -106,6 +106,9 @@ A aplicação estará disponível em `http://localhost`.
 - Headers de segurança (**X-Frame-Options**, **X-Content-Type-Options**).
 - Endpoint de **Health Check** em `/health`.
 
+## 🔗 Link com aplicação funcionando:
+https://lucaseduardodefreitas079924.vercel.app
+
 ## 🧪 Testes
 
 O projeto utiliza Vitest para uma execução de testes extremamente rápida.
@@ -116,10 +119,6 @@ npm test
 
 # Executar testes em modo watch
 npm run test:watch
-
-
-Link com aplicação funcionando:
-https://lucaseduardodefreitas079924.vercel.app
 
 ## 🎨 UI/UX e Design System
 
