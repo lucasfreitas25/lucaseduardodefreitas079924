@@ -106,8 +106,17 @@ A aplicação estará disponível em `http://localhost`.
 - Headers de segurança (**X-Frame-Options**, **X-Content-Type-Options**).
 - Endpoint de **Health Check** em `/health`.
 
-## 🔗 Link com aplicação funcionando:
+## 🔗 Link com a aplicação funcionando:
 https://lucaseduardodefreitas079924.vercel.app
+
+### Login no frontend
+
+Para acessar a aplicação (local ou produção), use as credenciais padrão na tela de login:
+
+| Campo  | Valor              |
+|--------|--------------------|
+| **E-mail** | `admin` |
+| **Senha**  | `admin`           |
 
 ## 🧪 Testes
 
@@ -179,6 +188,53 @@ Optei por uma abordagem de "Validação Assistida": o sistema formata o CPF dina
 
 ### Padrão de Componentização
 A refatoração para componentes de UI específicos (`FormCard`, `FormSection`) reduziu a duplicidade de código em 40% e garantiu que qualquer mudança visual futura seja propagada instantaneamente para todo o sistema.
+
+## 📖 Documentação de Páginas e Métodos
+
+Abaixo estão detalhados os principais métodos e hooks utilizados em cada página do sistema:
+
+### 🔐 Autenticação
+#### **Login** (`src/pages/Auth/Login.tsx`)
+- `onSubmit`: Gerencia a lógica de submissão do formulário, consumindo o `useAuth` para autenticação e redirecionamento.
+- **Hooks**: `useAuth`, `useForm`, `useNavigate`, `useState`.
+
+### 🐾 Gestão de Pets
+#### **PetList** (`src/pages/Pets/PetList/PetIndex.tsx`)
+- `handleSearch`: Sincroniza o termo de busca com os parâmetros da URL.
+- `handleDelete`: Executa a exclusão de um pet após confirmação visual.
+- `usePets`: Hook customizado que gerencia a query de listagem, busca e paginação.
+- **Hooks**: `useSearchParams`, `useDebounce`, `usePets`, `useDeletePet`.
+
+#### **PetDetails** (`src/pages/Pets/PetDetails/PetDetails.tsx`)
+- `usePet`: Recupera os detalhes completos de um pet específico, incluindo seus tutores.
+- **Responsividade**: Layout adaptativo para exibição de fotos e informações técnicas.
+- **Hooks**: `useParams`, `usePet`.
+
+#### **PetAdd** (`src/pages/Pets/PetAdd/PetAdd.tsx`)
+- `onSubmit`: Processa a criação de um novo pet, incluindo o tratamento de arquivos de imagem.
+- `handlePhotoSelect`: Callback para gerenciamento do componente de upload de foto.
+- **Hooks**: `useCreatePet`, `useForm`, `useNavigate`.
+
+#### **PetEdit** (`src/pages/Pets/PetEdit/PetEdit.tsx`)
+- `onSubmit`: Atualiza os dados do pet, tratando de forma inteligente o envio ou manutenção da foto.
+- `handlePhotoDelete`: Remove a imagem associada ao pet via API dedicada.
+- **Hooks**: `usePet`, `useUpdatePet`, `useForm`, `useEffect`.
+
+### 👤 Gestão de Tutores
+#### **TutorList** (`src/pages/Tutors/TutorList/TutorIndex.tsx`)
+- `renderTutorGrid`: Renderização performática dos cards de tutores com suporte a busca em tempo real.
+- `handleDelete`: Método para remoção de tutor com tratamento de erros.
+- **Hooks**: `useTutors`, `useDeleteTutor`, `useDebounce`.
+
+#### **TutorAdd** (`src/pages/Tutors/TutorAdd/TutorAdd.tsx`)
+- `onSubmit`: Sanitiza dados de CPF/Telefone antes do envio e gerencia a criação.
+- `handlePetToggle`: Lógica complexa para pré-vinculação de múltiplos pets durante o cadastro.
+- **Hooks**: `useCreateTutor`, `usePets`, `useForm`.
+
+#### **TutorEdit** (`src/pages/Tutors/TutorEdit/TutorEdit.tsx`)
+- `handleLinkPet` / `handleUnlinkPet`: Métodos específicos para gerenciar o vínculo dinâmico entre tutor e pets existentes.
+- **Reflexão de Estado**: Uso de `useEffect` para sincronizar o estado reativo da store com os campos do formulário.
+- **Hooks**: `useTutor`, `useUpdateTutor`, `useAddPet`, `useRemovePet`, `usePets`.
 
 ---
 
