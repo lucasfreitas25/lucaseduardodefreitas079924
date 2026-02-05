@@ -4,9 +4,7 @@ import { petFacade } from '../services/PetFacade';
 import type { PetDetailsDTO } from '../types/dtos';
 import type { Pet } from '../types';
 
-/**
- * Estado da aplicação para Pets
- */
+
 interface PetState {
   pets: Pet[];
   selectedPet: PetDetailsDTO | null;
@@ -35,6 +33,12 @@ const initialState: PetState = {
  * Padrão Singleton - apenas uma instância em toda aplicação
  */
 class PetStore {
+  /* 
+     RxJS (BehaviorSubject): Implementa o gerenciamento de estado reativo sênior.
+     O BehaviorSubject mantém o estado atual e emite atualizações apenas para os 
+     componentes interessados, utilizando operadores como distinctUntilChanged 
+     para evitar re-renderizações desnecessárias e maximizar a performance.
+  */
   private readonly _state = new BehaviorSubject<PetState>(initialState);
   public readonly state$: Observable<PetState> = this._state.asObservable();
 
@@ -66,7 +70,7 @@ class PetStore {
     )
   );
 
-  // Observable combinado para UI complexa
+  // Observable combinado para UI
   public readonly viewModel$ = combineLatest([
     this.pets$,
     this.loading$,
@@ -85,12 +89,18 @@ class PetStore {
 
   private searchSubject = new Subject<string>();
   constructor() {
+    /* 
+       Pipeline de Busca Reativa:
+       Utiliza debounceTime(100) para evitar disparos excessivos na API enquanto o usuário digita
+       e switchMap para cancelar requisições anteriores caso uma nova busca seja iniciada,
+       resolvendo problemas de concorrência (race conditions) de forma elegante e performática.
+    */
     this.searchSubject.pipe(
       debounceTime(100),
       distinctUntilChanged(),
       switchMap((term) => {
-        // Only set loading if we don't have items to show, preventing flicker
-        // If we have items, we keep showing them until new results arrive
+        // apenas set loading se não tivermos itens para mostrar, evitando flicker
+        // Se tivermos itens, continuamos mostrando-os até que novos resultados cheguem
         if (this.currentState.pets.length === 0) {
           this.setState({ loading: true, error: null, currentPage: 0, searchTerm: term });
         } else {
@@ -111,9 +121,7 @@ class PetStore {
       if (Array.isArray(response) && response.length === 0 && this.currentState.pets.length > 0) {
       }
 
-      // Let's rewrite the subscription handler to be safer.
       if (Array.isArray(response)) {
-        // This is the error fallback []
         return;
       }
 
@@ -144,7 +152,7 @@ class PetStore {
   }
 
   async loadPets(page: number = 0, size: number = 10): Promise<void> {
-    // Only show loading if we are empty (first load)
+    // apenas mostrar loading se estiver vazio (primeiro carregamento)
     if (this.currentState.pets.length === 0) {
       this.setState({ loading: true, error: null });
     } else {

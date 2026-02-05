@@ -27,6 +27,11 @@ const initialState: TutorState = {
 };
 
 class TutorStore {
+    /* 
+       RxJS (BehaviorSubject): Arquitetura de estado global reativa.
+       Centraliza o Single Source of Truth e permite que múltiplos componentes consumam
+       partes específicas do estado com alta performance e sem acoplamento direto.
+    */
     private readonly _state = new BehaviorSubject<TutorState>(initialState);
 
     public readonly state$: Observable<TutorState> = this._state.asObservable();

@@ -34,6 +34,12 @@ export default function TutorAdd() {
     // Fetch available pets to link
     const { data: petsData } = usePets(1, '', 100);
 
+    /* 
+       React Hook Form: Gerenciamento de formulários de alta performance. 
+       Ao contrário do estado tradicional do React, ele utiliza formulários não-controlados (via refs),
+       o que desacopla o estado do input do ciclo de vida de renderização do componente, 
+       garantindo uma UI fluida mesmo em formulários complexos.
+    */
     const {
         register,
         handleSubmit,

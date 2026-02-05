@@ -117,9 +117,9 @@ npm test
 # Executar testes em modo watch
 npm run test:watch
 
-# Gerar relatório de cobertura
-npm run test:coverage
-```
+
+Link com aplicação funcionando:
+https://lucaseduardodefreitas079924.vercel.app
 
 ## 🎨 UI/UX e Design System
 
