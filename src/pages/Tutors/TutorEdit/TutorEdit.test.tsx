@@ -54,11 +54,11 @@ describe('TutorEdit', () => {
         vi.mocked(TutorService.updateTutor).mockResolvedValue(undefined as any);
         vi.mocked(TutorService.uploadTutorPhoto).mockResolvedValue(undefined as any);
 
-        window.history.pushState({}, '', '/tutors/1/edit');
         render(
             <Routes>
                 <Route path="/tutors/:id/edit" element={<TutorEdit />} />
-            </Routes>
+            </Routes>,
+            { route: '/tutors/1/edit' }
         );
 
         await waitFor(() => {
@@ -79,11 +79,11 @@ describe('TutorEdit', () => {
 
         global.URL.createObjectURL = vi.fn(() => 'mock-url');
 
-        window.history.pushState({}, '', '/tutors/1/edit');
         const { container } = render(
             <Routes>
                 <Route path="/tutors/:id/edit" element={<TutorEdit />} />
-            </Routes>
+            </Routes>,
+            { route: '/tutors/1/edit' }
         );
 
         await waitFor(() => {

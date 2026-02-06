@@ -32,11 +32,11 @@ describe('PetEdit', () => {
         vi.mocked(petsService.getPetById).mockResolvedValue(mockPet as any);
         vi.mocked(petsService.updatePet).mockResolvedValue(undefined as any);
 
-        window.history.pushState({}, '', '/pets/1/edit');
         render(
             <Routes>
                 <Route path="/pets/:id/edit" element={<PetEdit />} />
-            </Routes>
+            </Routes>,
+            { route: '/pets/1/edit' }
         );
 
         await waitFor(() => {
@@ -63,11 +63,11 @@ describe('PetEdit', () => {
         // Mock URL.createObjectURL
         global.URL.createObjectURL = vi.fn(() => 'mock-url');
 
-        window.history.pushState({}, '', '/pets/1/edit');
         const { container } = render(
             <Routes>
                 <Route path="/pets/:id/edit" element={<PetEdit />} />
-            </Routes>
+            </Routes>,
+            { route: '/pets/1/edit' }
         );
 
         await waitFor(() => {
@@ -92,11 +92,11 @@ describe('PetEdit', () => {
     it('exibe erro se o carregamento do pet falhar', async () => {
         vi.mocked(petsService.getPetById).mockRejectedValue(new Error('Erro ao carregar'));
 
-        window.history.pushState({}, '', '/pets/1/edit');
         render(
             <Routes>
                 <Route path="/pets/:id/edit" element={<PetEdit />} />
-            </Routes>
+            </Routes>,
+            { route: '/pets/1/edit' }
         );
 
         await waitFor(() => {

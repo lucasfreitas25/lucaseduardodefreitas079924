@@ -40,11 +40,11 @@ describe('PetDetails', () => {
 
         vi.mocked(petsService.getPetById).mockResolvedValue(mockPet as any);
 
-        window.history.pushState({}, '', '/pets/1');
         render(
             <Routes>
                 <Route path="/pets/:id" element={<PetDetails />} />
-            </Routes>
+            </Routes>,
+            { route: '/pets/1' }
         );
 
         await waitFor(() => {
@@ -63,11 +63,11 @@ describe('PetDetails', () => {
     it('deve exibir mensagem de erro quando a API falha', async () => {
         vi.mocked(petsService.getPetById).mockRejectedValue(new Error('Erro ao carregar detalhes'));
 
-        window.history.pushState({}, '', '/pets/1');
         render(
             <Routes>
                 <Route path="/pets/:id" element={<PetDetails />} />
-            </Routes>
+            </Routes>,
+            { route: '/pets/1' }
         );
 
         await waitFor(() => {
@@ -78,11 +78,11 @@ describe('PetDetails', () => {
     it('deve mostrar mensagem de pet não encontrado', async () => {
         vi.mocked(petsService.getPetById).mockResolvedValue(null as any);
 
-        window.history.pushState({}, '', '/pets/1');
         render(
             <Routes>
                 <Route path="/pets/:id" element={<PetDetails />} />
-            </Routes>
+            </Routes>,
+            { route: '/pets/1' }
         );
 
         await waitFor(() => {

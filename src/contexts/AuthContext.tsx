@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useEffect, useState, type ReactNode } from 'react';
 import { authService } from '../services/api/auth_service';
 import type { LoginCredentials } from '../types';
 
@@ -74,4 +74,4 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export { AuthContext };

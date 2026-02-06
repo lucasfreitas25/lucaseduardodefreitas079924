@@ -118,8 +118,7 @@ class PetStore {
         );
       })
     ).subscribe((response: any) => {
-      if (Array.isArray(response) && response.length === 0 && this.currentState.pets.length > 0) {
-      }
+
 
       if (Array.isArray(response)) {
         return;

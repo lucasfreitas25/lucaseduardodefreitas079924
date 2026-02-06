@@ -21,7 +21,6 @@ class Logger implements LoggerService {
     // Registra uma mensagem com um nivel especifico
     log(message: string, level: LogLevel = LogLevel.INFO, context?: Record<string, any>) {
         if (this.isProduction) {
-
         } else {
             const timestamp = new Date().toISOString();
             console.log(`[${timestamp}] [${level.toUpperCase()}]: ${message}`, context || '');
