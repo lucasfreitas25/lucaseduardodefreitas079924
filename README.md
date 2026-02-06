@@ -61,7 +61,7 @@ pet-manager/
 
 - **Node.js**: 18.0 ou superior
 - **NPM**: 9.0 ou superior
-- **Docker** (opcional para containerização)
+- **Docker**
 
 
 ## Executar o projeto com Docker
@@ -81,7 +81,7 @@ cd pet-manager (Caso não esteja na pasta)
 docker-compose up --build
 ```
 
-A aplicação estará disponível em `http://localhost`.
+A aplicação estará disponível em http://localhost.
 
 ### Recursos do Nginx Incluídos:
 - Compressão **Gzip** para carregamento rápido.
