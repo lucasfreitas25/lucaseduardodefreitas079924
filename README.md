@@ -5,6 +5,8 @@
 - **Nome**: Lucas Eduardo de Freitas
 - **Email**: lucasfreitas25001@gmail.com
 - **Nº de inscrição**: 16544
+- **Vaga**: Analista de Tecnologia da Informação - Perfil Engenheiro da Computação (Sênior)
+- **Projeto Escolhido**: Implementação Front end Sênior
 
 ## 🎯 Sobre o Projeto
 
@@ -66,7 +68,7 @@ pet-manager/
 1. Clone o repositório:
 ```bash
 git clone [url-do-repositorio]
-cd pet-manager
+cd pet-manager (Caso não esteja na pasta)
 ```
 
 2. Instale as dependências:
@@ -90,7 +92,7 @@ O projeto possui configuração completa de Docker e Docker Compose, incluindo u
 
 1. Navegue para a pasta do projeto:
 ```bash
-cd pet-manager
+cd pet-manager (Caso não esteja na pasta)
 ```
 
 2. Construa e inicie o container:
