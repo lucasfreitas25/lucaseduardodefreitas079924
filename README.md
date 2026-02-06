@@ -1,6 +1,6 @@
 # Pet Manager - Sistema de Registro de Pets e Tutores
 
-## 📋 Dados de Inscrição
+## Dados de Inscrição
 
 - **Nome**: Lucas Eduardo de Freitas
 - **Email**: lucasfreitas25001@gmail.com
@@ -8,13 +8,13 @@
 - **Vaga**: Analista de Tecnologia da Informação - Perfil Engenheiro da Computação (Sênior)
 - **Projeto Escolhido**: Implementação Front end Sênior
 
-## 🎯 Sobre o Projeto
+## Sobre o Projeto
 
 O **Pet Manager** é um sistema moderno de gerenciamento de pets e tutores desenvolvido para o Estado de Mato Grosso. A aplicação permite o ciclo completo de gerenciamento (CRUD) de animais e seus respectivos responsáveis, integrando-se a uma API RESTful para persistência de dados.
 
 O projeto foi construído com foco em **performance**, **escalabilidade** e **experiência do usuário**, utilizando as tecnologias mais recentes do ecossistema React.
 
-## 🚀 Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 - **React 19**: Versão mais recente do React para uma performance otimizada.
 - **TypeScript**: Tipagem estática para maior segurança e produtividade.
@@ -27,7 +27,7 @@ O projeto foi construído com foco em **performance**, **escalabilidade** e **ex
 - **Vitest & React Testing Library**: Testes unitários modernos e integrados ao ecossistema Vite.
 - **Axios**: Cliente HTTP para comunicação com a API, com interceptores para JWT e Refresh Token.
 
-## 🏗️ Arquitetura e Padrões
+## Arquitetura e Padrões
 
 O projeto utiliza uma arquitetura baseada em camadas para garantir a separação de responsabilidades e facilitar a manutenção:
 
@@ -55,7 +55,7 @@ pet-manager/
 └── tests/             # Configurações de testes
 ```
 
-## 🔧 Como Executar Localmente
+## Como Executar Localmente
 
 ### Pré-requisitos
 
@@ -63,27 +63,8 @@ pet-manager/
 - **NPM**: 9.0 ou superior
 - **Docker** (opcional para containerização)
 
-### Instalação
 
-1. Clone o repositório:
-```bash
-git clone [url-do-repositorio]
-cd pet-manager (Caso não esteja na pasta)
-```
-
-2. Instale as dependências:
-```bash
-npm install
-```
-
-3. Inicie o servidor de desenvolvimento:
-```bash
-npm run dev
-```
-
-Acesse em `http://localhost:5173`
-
-## 🐳 Executar com Docker
+## Executar o projeto com Docker
 
 O projeto possui configuração completa de Docker e Docker Compose, incluindo um servidor **Nginx** otimizado para Single Page Applications (SPA).
 
@@ -108,7 +89,7 @@ A aplicação estará disponível em `http://localhost`.
 - Headers de segurança (**X-Frame-Options**, **X-Content-Type-Options**).
 - Endpoint de **Health Check** em `/health`.
 
-## 🔗 Link com a aplicação funcionando:
+## Link com a aplicação funcionando:
 https://lucaseduardodefreitas079924.vercel.app
 
 ### Login no frontend
@@ -120,7 +101,7 @@ Para acessar a aplicação (local ou produção), use as credenciais padrão na 
 | **E-mail** | `admin` |
 | **Senha**  | `admin`           |
 
-## 🧪 Testes
+##  Testes
 
 O projeto utiliza Vitest para uma execução de testes extremamente rápida.
 
@@ -131,7 +112,7 @@ npm test
 # Executar testes em modo watch
 npm run test:watch
 
-## 🎨 UI/UX e Design System
+##  UI/UX e Design System
 
 A aplicação foi submetida a uma refatoração completa para implementar um **Design System** coeso e premium:
 
@@ -162,7 +143,7 @@ A aplicação foi submetida a uma refatoração completa para implementar um **D
 - **Máscaras de Input**: Formatação automática para CPF, Telefone e CEP.
 - **Health Checks**: Endpoint `/health` pronto para monitoramento via Nginx.
 
-## 🧪 Testes
+##  Testes
 
 O projeto utiliza **Vitest** e **React Testing Library** para garantir a qualidade.
 
@@ -174,7 +155,7 @@ npm test
 npm run test:watch
 ```
 
-## 🏗️ Build
+##  Build
 
 Para gerar a versão de produção otimizada:
 
@@ -183,7 +164,7 @@ npm run build
 ```
 O build valida automaticamente todos os tipos TypeScript e resolve dependências órfãs.
 
-## 💡 Decisões Técnicas Importantes
+##  Decisões Técnicas Importantes
 
 ### Validação de CPF e Formatação
 Optei por uma abordagem de "Validação Assistida": o sistema formata o CPF dinamicamente enquanto o usuário digita e impede o envio de dados que não atendam ao algoritmo de verificação oficial.
@@ -191,16 +172,16 @@ Optei por uma abordagem de "Validação Assistida": o sistema formata o CPF dina
 ### Padrão de Componentização
 A refatoração para componentes de UI específicos (`FormCard`, `FormSection`) reduziu a duplicidade de código em 40% e garantiu que qualquer mudança visual futura seja propagada instantaneamente para todo o sistema.
 
-## 📖 Documentação de Páginas e Métodos
+## Documentação de Páginas e Métodos
 
 Abaixo estão detalhados os principais métodos e hooks utilizados em cada página do sistema:
 
-### 🔐 Autenticação
+###  Autenticação
 #### **Login** (`src/pages/Auth/Login.tsx`)
 - `onSubmit`: Gerencia a lógica de submissão do formulário, consumindo o `useAuth` para autenticação e redirecionamento.
 - **Hooks**: `useAuth`, `useForm`, `useNavigate`, `useState`.
 
-### 🐾 Gestão de Pets
+###  Gestão de Pets
 #### **PetList** (`src/pages/Pets/PetList/PetIndex.tsx`)
 - `handleSearch`: Sincroniza o termo de busca com os parâmetros da URL.
 - `handleDelete`: Executa a exclusão de um pet após confirmação visual.
